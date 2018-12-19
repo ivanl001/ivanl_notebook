@@ -1,0 +1,13 @@
+{
+  "title": "03-Hadoop-0201-Hadoop命令",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1， hadoop的基本命令之hdfs dfs"
+    },
+    {
+      "type": "markdown",
+      "data": "* 如果通过直接 ssh slave01 jps这种方式调用jps报错jps命令找不到的话，只需要把jdk的bin中的jps文件创建了链接到/usr/bin目录下即可，这个是系统的原因，不需要纠结，\n* ln -s /usr/local/jdk1.8.0_65/bin/jps /usr/bin/jps\n* \n\n \n> 0.0, Hadoop fs 和hdfs dfs一模一样，只需要把下面的hdfs dfs换成Hadoop fs就可以完全执行下面的所有命令\n\n\n*hdfs dfs*\n\n### 1.1，显示文件列表\n\n`hdfs dfs -ls`: 不指定目录的情况下默认是/user/root/目录下面的文件列表\n\n`hdfs dfs -ls /user/root/ivanl001`: 也可以指定\n\n`hdfs dfs -ls -R`: 递归形式显示所有目录下的文件或者文件夹\n\n`hadoop fs -ls /`\n\n### 1.2，上传文件\n#### put 和copyFromLocal是一样的\n\n`hdfs dfs -put /root/everything/jdk-8u65-linux-x64.tar.gz /user/root/ivanl001` :  \n\n### 1.3, 下载文件\n\n`hdfs dfs -get /user/root/ivanl001/jdk-8u65-linux-x64.tar.gz /root/jdk8.tar.gz`\n\n### 1.4, 删除文件\n\n`hdfs dfs -rm -r -f /user/root/ivanl001/test.txt`\n\n### 1.5, 创建目录\n\n`hdfs dfs -mkdir -p /user/root/ivanl002` : 也可以迭代创建目录\n\n### 1.6, 追加本地文件到hdfs文件\n\n`hdfs dfs -appendToFile test01.txt /user/root/test.txt`\n\n### 1.7, 查看命令\n\n`hdfs dfs -cat test.txt` : 如果不写绝对路径，默认是/user/root/下\n\n\n> SPOF: single point of failure\n"
+    }
+  ]
+}

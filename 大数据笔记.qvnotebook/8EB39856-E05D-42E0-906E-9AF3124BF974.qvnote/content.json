@@ -1,0 +1,45 @@
+{
+  "title": "02-Linux基础-0400-查漏补缺",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1， nc的使用(NetCat)"
+    },
+    {
+      "type": "markdown",
+      "data": "字符聊天：\n> nc -l 8888  #服务端开始监听8888端口\n> nc localhost 8888 # 如果想连接本机上的8888端口，客户端通过这条命令，连接上之后就可以发送命令进行消息通信\n\n文件发送：\n> 服务器端：nc -lk 8888 > server.txt\n> 客户端  : nc localhost 8888 < client.txt\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2, 环境变量的获取\n\n```shell\nname=ivanl\n\n# 如果想要打印 ivanl001 的字段，需要把name和001拼接起来，有如下方式：\necho `echo $name`001\necho \"$name\"001\necho ${name}001\n"
+    },
+    {
+      "type": "markdown",
+      "data": "![IMAGE](quiver-image-url/12BB16182E2D334B7CB2FEBC48FD6CD8.jpg =675x398)"
+    },
+    {
+      "type": "markdown",
+      "data": "## 3, shell相关命令\n\n> 数值运算的时候需要用 $(())符号\n\n```shell\n# 导出name为var01的值，如果var01没有值，则导出var02的值，三元运算符\nexport name=\\${var01:-${var02}} \n\n# if语句\n# 简单的if循环\nif   [ $# -le 4 ];      then echo '参数个数小于5个，不够';\nelif [ $# -le 5 ];      then echo '参数刚好是5个';\nelse echo '参数大于5个';fi;\n\n# if的另外测试\nn=10\nif ((n < 10)); then echo 'n < 10';\nelif ((n = 10)); then echo 'n = 10';\nelse echo 'n > 10';\nfi;\n\n\n\n\n# for循环\nnum=10\nfor((i=0;i<$num;i++));\ndo for((j=0;j<$i;j++));\n   do echo -n $j;\n   done\n   echo\ndone\n\n# for in写法\nfor x in $@;\ndo echo $x;\ndone\n\n# for循环的(())内部不需要带$\nnum=10\nfor((i=0;i<num;i++));\ndo for((j=0;j<i;j++));\n   do echo -n $j;\n   done\n   echo\ndone\n\n\n\n\n# while循环\ni=0\nwhile(($i < 100));\ndo echo -n \"$i\",; i=$(( $i + 1 ));\ndone;\n\n# while循环的另外测试\nn=8\nwhile [ $n -lt 10 ]; # 注意：这里是必须要带$\ndo echo 'hahahaha';\nn=$(($n+1));\ndone;\n\n# 再换种写法\ni=0\nwhile ((i<10));\ndo echo $i;\ni=$(($i + 1))\ndone\n\n\n\n\n# $? : 上一个执行命令的执行结果, 0代表成功，1代表失败\n\n# shift操作\necho\necho $@\necho '$1是:'$1\nshift\necho 'shift一次，$1是:'$1\nshift\necho 'shift两次，$1是:'$1\n\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 4，查看端口"
+    },
+    {
+      "type": "markdown",
+      "data": "```txtn\n查看端口\n------------------\n\tnetstat -anop\t//显式网络情况\n\t\t\t\t\t//-a : 所有socket\n\t\t\t\t\t//-n : 显式数字地址\n\t\t\t\t\t//-p : pid\n\t\t\t\t\t//-o : timer\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 5，yum相关操作"
+    },
+    {
+      "type": "markdown",
+      "data": "```\n使用yum进行软件包安装卸载\n-------------------------------\t\n\t$>yum list\t\t\t\t\t\t\t//列出所有软件包\n\t$>yum list installed\t\t\t\t//列出已经安装的软件包\n\t$>yum list installed | grep nano\t//列出已经安装的软件包\n\t$>yum search nano\t\t\t\t\t//在yum的软件源中搜索软件 \n\t$>yum remove nano\t\t\t\t\t//卸载软件\n\t$>yum -y install nano\t\t\t\t//直接安装，不需要yes确认.\n\t$>yum list installed | grep nano\t//查看是否安装了Nano\n\n\t$>mkdir /home/centos/rpms\n\t\n\t$echo 以下命令只下载软件，不安装软件\n\t$>sudo yum install --downloadonly\t\t\t\t//只下载\n\t\t\t\t  --downloaddir=/home/centos/rpms\t//指定下载目录\n\t\t\t\t  wget\n\t\n\t//下载已经安装的软件\n\t$>sudo yum reinstall --downloadonly\t\n\t\t\t\t\t\t --downloaddir=/home/centos/rpms\n\t\t\t\t\t\t wget\n\n\t$>sudo yum localinstall xxx.rpm\t//从本地rpm文件直接安装软件\n\n\n\t\n\t$>su root\n\t$>yum search ifconfig\n\t$>yum -y install net-tools\t\t//安装网络工具\n```"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

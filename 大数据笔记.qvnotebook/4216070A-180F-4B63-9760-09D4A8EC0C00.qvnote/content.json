@@ -1,0 +1,9 @@
+{
+  "title": "07-HBase-0308-Hbase计数器的java的api",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "```java\npackage im.ivanl001.bigData.Hbase;\n\nimport org.apache.hadoop.conf.Configuration;\nimport org.apache.hadoop.hbase.HBaseConfiguration;\nimport org.apache.hadoop.hbase.TableName;\nimport org.apache.hadoop.hbase.client.Connection;\nimport org.apache.hadoop.hbase.client.ConnectionFactory;\nimport org.apache.hadoop.hbase.client.Increment;\nimport org.apache.hadoop.hbase.client.Table;\nimport org.junit.Test;\n\n/**\n * #author      : ivanl001\n * #creator     : 2018-11-13 14:25\n * #description : Hbase的计数器\n **/\npublic class A06_Counter {\n\n\n\n    @Test\n    public void hbase_counter_test() throws Exception {\n\n        Configuration configuration = HBaseConfiguration.create();\n        Connection connection = ConnectionFactory.createConnection(configuration);\n\n        TableName tableName = TableName.valueOf(\"ns3:counters\");\n        Table table = connection.getTable(tableName);\n\n        Increment increment = new Increment(\"20181113\".getBytes());\n        //这里可以同时添加很多行\n        increment.addColumn(\"daily\".getBytes(), \"hits\".getBytes(), 10);\n\n        table.increment(increment);\n    }\n}\n\n```"
+    }
+  ]
+}

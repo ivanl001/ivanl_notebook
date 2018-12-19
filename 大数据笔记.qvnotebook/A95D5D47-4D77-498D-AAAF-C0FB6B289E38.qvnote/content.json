@@ -1,0 +1,33 @@
+{
+  "title": "13-Spark2.1-07-05-Python基础",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1，python的基本数据类型\n* Numbers\n  * int\n  * long\n  * float\n  * complex #复数\n* String\n  * 切片用:分割，而不是,[0: 4]，前包后不包\n  * 切片：[5:20:2]表示从5个字符开始，到20个字符结束，每隔两个字符取一次， 这里20不是长度\n  * str01 = r\"ivan is the king of world \\n and so cool\"  # 这里是原样输出，不会转义\n  * print(str01)\n* List\n  * list01 = [1, 2, 34, \"ivanl001\", \"kkkk\"]\n  * 可变，任何元素都可以二次赋值\n* Tuple\n  * tuple01 = (1, 2, \"zhang\", 444)\n  * print(tuple01[0])\n  * 注意：感觉和数组差不多，但是有一点就是不可以二次赋值\n* Dictionary\n  * dictionary01 = {1:10, \"name\":\"ivan\", 2:333, \"key\":\"king\"}\n  * print(dictionary01)\n  * print(dictionary01.get(\"key\"))"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2, 类型转换\n`规则：目标数据类型(需要转换的数据)`\n* age = 10\n* ageStr = str(age)\n\n`eval求值`\n* print(eval(\"10+20\"))\n\n`tuple((1, 2, 3, 4)):将序列转成元祖，因为接受一个参数，也就是徐磊，所以内部需要加上括号`\n* seq01 = 1, 3, 5, 7, 9;\n* d = tuple(seq01)"
+    },
+    {
+      "type": "markdown",
+      "data": "## 3，分支语句\n### 3.1，for循环\n  ```python\n  for i in range(10):\n    print(i)\n  \n  for i in 1,3,4,5,9:\n    print(i)\n  ```\n### 3.2，if循环\n  ```python\n  age = 10\n  if age < 16:\n    print(\"You are too young\")\n  elif age < 40:\n    print(\"You are cool\")\n  else:\n    print(\"sorry, you are old enough\")\n  ```\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 4，文件操作\n### 4.1，文件拷贝\n\n```python\n# 1, 一次性读\nprint(\"# 1, 一次性读\")\nf = open(\"/Users/ivanl001/Desktop/bigData/input/ivanl001.txt\")\nlines = f.readlines()\nfor line in lines:\n    # 这个意思是打印但是不换行\n    print(line, end='')\n\n# 2, 每次读取一行\nprint()\nprint(\"2, 每次读取一行\")\nf = open(\"/Users/ivanl001/Desktop/bigData/input/ivanl001.txt\")\nwhile True:\n    line = f.readline()\n    if  line != '':\n        print(line, end=\"\")\n    else:\n        # 这里就是换个行\n        print()\n        break\n\n# 3,字节读取，文件拷贝等\nprint(\"# 3,字节读取，文件拷贝等\")\ninput01 = open(\"/Users/ivanl001/Pictures/test01.jpg\", \"rb\")\noutput01 = open(\"/Users/ivanl001/Pictures/test01-copy.jpg\",\"wb\")\n\nprint(\"拷贝开始\")\nwhile True:\n    print(\"---0000\")\n    # 这里是设置缓存，一次缓存多少字节\n    data = input01.read(1024*1024) # 这里是1024*1024byte，也就是1M\n    print(len(data))\n    if len(data) == 0:\n        break\n    else:\n        output01.write(data)\n\ninput01.close()\noutput01.close()\nprint(\"拷贝结束\")\n```\n\n### 4.2, os系统操作\n\n```python\nimport os\n\n# 修改文件名\nos.rename(\"/Users/ivanl001/Desktop/01.jpg\", \"/Users/ivanl001/Desktop/01-rename.jpg\")\n```"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

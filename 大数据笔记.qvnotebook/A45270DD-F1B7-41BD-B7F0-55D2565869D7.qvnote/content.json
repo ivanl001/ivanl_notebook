@@ -1,0 +1,21 @@
+{
+  "title": "03-Hadoop-0205-rsync和imcall工具",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1，rsync"
+    },
+    {
+      "type": "markdown",
+      "data": "### 01，本地同步文件夹\n> rsync -av ivanl001/ test/ #test文件夹不存在的时候会自动创建\n\n### 02，本地同步到远程服务器上\n> rsync -avl ivanl001/ root@slave01:/home/test # l代表link，链接\n\n```shell\n#! /bin/bash\n\n# 这个脚本的作用是同步文件或者文件夹到远程的三台从服务器上\n\nif(($#!=1)); then echo '请输入正确的需要同步的文件夹或文件的路径';exit;fi;\n\necho;\n\npath=$@;\n\nrelativeDirPath=`dirname $path`;#这里取出来有时候是.,也就是当前目录\ncd $relativeDirPath;\ndirPath=`pwd`;\n\nbasePath=`basename $path`;\n\nfullPath=$dirPath/$basePath;\n\necho '--------------------------------同步源目录开始:'$fullPath'------------------------------------';\n\nfor((i=1;i<4;i++));\ndo\nrsync -avl $@ root@slave0$i:$fullPath;\ndone;\n\necho '--------------------------------同步源目录结束:'$dirPath/$basePath'------------------------------------';\n\necho;\n\n```\n\n* 做参考\n```shell\n#!/bin/bash\n\nif [[ $# -lt 1 ]] ; then echo no params ; exit ; fi\n\np=$1\n#echo p=$p\ndir=`dirname $p`\n#echo dir=$dir\nfilename=`basename $p`\n#echo filename=$filename\ncd $dir\nfullpath=`pwd -P .`\n#echo fullpath=$fullpath\n\nuser=`whoami`\nfor (( i = 202 ; i <= 204 ; i = $i + 1 )) ; do\n   echo ======= s$i =======\n   rsync -lr $p ${user}@s$i:$fullpath\ndone ;\n```\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2, 通过ssh远程同时操作多台从服务器\n\n```shell\n#! /bin/bash\n\n#if((n!=1)); then echo '请输入正确命令';exit;fi;#这里不能判断一个参数，不然ls -a这种就会有问题\n\necho;#打印一行空格\n\necho '---------------------------------执行命令开始:'$@'-----------------------------------';\n\necho;#打印一行空格\n\necho '---------------master---------------'\nssh localhost \"$@\";\n\nfor((i=1;i<4;i++))\ndo\necho '---------------'slave0$i'--------------';\nssh slave0$i \"$@\";\ndone;\n\necho;\n\necho '---------------------------------执行命令结束:'$@'-----------------------------------';\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "* 下面这种情况适用于非root用户的时候ssh权限问题，可以做个参考，贴在这里\n![IMAGE](quiver-image-url/249587A6D3109CCBEAF0CC8AD45F9E5C.jpg =703x319)"
+    }
+  ]
+}

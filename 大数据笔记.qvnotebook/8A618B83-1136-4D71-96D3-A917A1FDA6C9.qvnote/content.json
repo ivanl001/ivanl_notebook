@@ -1,0 +1,13 @@
+{
+  "title": "03-Hadoop-0604-压缩和解压缩",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "//压缩时间\nDeflateCodec:--------669\nGzipCodec:--------134\nBZip2Codec:--------15378\n//压缩大小\nDeflateCodec:--------47\nGzipCodec:--------47\nBZip2Codec:--------68\n\n\n//解压缩时间\nDeflateCodec:--------723\nGzipCodec:--------304\nBZip2Codec:--------1034\n\n//根据上面的比较，其实BZip2Codec是相对比较差的，肯定是GzipCodec是最好用的， 感觉DeflateCodec和GzipCodec的压缩算法是不是一样啊，压缩了几个不同的文件，压缩大小都是一样的\n\n//还有Lz4Codec， SnappyCodec和lzo等压缩方式，没有动态链接库什么的，就懒得测试了， 用法是差不多的"
+    },
+    {
+      "type": "markdown",
+      "data": "\n\nhdfs dfs -text file:///root/share/zhang.seq"
+    }
+  ]
+}

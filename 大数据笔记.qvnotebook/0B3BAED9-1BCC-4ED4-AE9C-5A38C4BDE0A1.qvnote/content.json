@@ -1,0 +1,13 @@
+{
+  "title": "08-Flume-0101-基本介绍和简单实用",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1, 简单使用netcat演示flume\n\n* 01, 首先更改配置文件，文件名重命名为flume-conf.properties，内容如下：\n  ```shell\n  # 0, 首先指定三种组件：源,通道,槽\n  agent.sources = r1\n  agent.channels = c1\n  agent.sinks = k1\n  \n  \n  # 1, 定义source相关信息，绑定流入的数据， 并制定输出的方向\n  agent.sources.r1.type = netcat\n  agent.sources.r1.bind = localhost\n  agent.sources.r1.port = 8888\n  agent.sources.r1.channels = c1\n  \n  \n  # 2, 定义channel相关的信息, 这里不需要制定输出，而是让sink指定输入的\n  agent.channels.c1.type = memory\n  \n  # 3, 定义sink相关的信息\n  agent.sinks.k1.channel = c1  \n  agent.sinks.k1.type = logger\n  ```\n  \n* 02, 先开启nc, 错了，不能启动nc，因为其实nc是flume内置配置的，启动flume后会flume内部会自动的启动nc的8888端口,所以这一步忽略\n  > \\# nc -lk 8888\n\n* 03, 开启flume进行监听, 我设置文件中代理名就是agent\n  > flume-ng agent -n agent -c conf -f flume-conf.properties  &\n\n* 04，直接用nc连接本地8888端口，发送消息即可用flume接受到nc的消息\n  > nc localhost 8888\n"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "title": "00-电商小项目-0206-centos7安装nginx",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "* 1、添加源\n\n  *默认情况Centos7中无Nginx的源，最近发现Nginx官网提供了Centos的源地址。因此可以如下执行命令添加源：*\n\n  > sudo rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm\n \n\n* 2、安装Nginx\n\n  *通过yum search nginx看看是否已经添加源成功。如果成功则执行下列命令安装Nginx。*\n\n  > sudo yum install -y nginx\n \n\n* 3、启动Nginx并设置开机自动运行\n\n  > sudo systemctl start nginx.service\n  > sudo systemctl enable nginx.service\n \n\n* 4、浏览查看效果\n\n  > http://master:80"
+    }
+  ]
+}

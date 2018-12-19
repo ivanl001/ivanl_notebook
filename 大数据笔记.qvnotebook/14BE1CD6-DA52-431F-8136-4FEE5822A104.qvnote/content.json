@@ -1,0 +1,9 @@
+{
+  "title": "05-Serialization-0103-Arvo串行化",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "# 1，编译模式使用Arvo\n* 01， 定义schema文件\n\n```json\n{\n\"namespace\": \"im.ivanl001.bigData.Avro\", \n\"type\": \"record\",\n\"name\": \"emp\",\n\"fields\": [\n  {\"name\": \"age\", \"type\": \"int\"}, \n  {\"name\": \"address\", \"type\": \"string\"},\n  {\"name\":\"name\", \"type\": \"string\"},\n  {\"name\":\"id\", \"type\": \"int\"},\n  {\"name\":\"salary\", \"type\": \"int\"}\n]}\n```\n\n* 02, 使用avro-tools-1.8.0.jar工具生成java文件到当前目录\n  > java -jar avro-tools-1.8.0.jar compile schema emp.avsc .\n\n* 03，把生成的文件拖入到工程中使用\n\n* 04, "
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "title": "12-Scala-0201-Scala学习",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "主要看代码"
+    },
+    {
+      "type": "markdown",
+      "data": "\n> 昨日学习总结\n\n```\nobject  //静态成员，里面的属性相当于全局变量， 方法相当于静态方法， mian方法需要定义在object中\n\nclass   //就是类\n\ntrait   //接口\n\n//方法或者函数定义一\ndef function(paramA: Int):Unit = {\n\n}\n//方法或者函数定义二\ndef funciton(paramA: Int):Unit{\n\n}\n\nvar    //变量\nval    //常量\n\n\nmap(\"a\" -> \"b\", \"key\" -> \"value\")\n\n(\"string\", 2, 2.3)    //tuple, 最多22个元素好像是\n\n//for循环\nfor(i <- 0 to 10){\n\n}\n\n\nUnit  ====等价于java中的void\n\njavac //编译.java文件\njavap //查看java的.class文件\n\nscalac  //编译scala文件\njavap   //scala文件编译后也是.class文件， 用javap即可查看\n\n\nval arr01  = new Array(100);//这里是创建有100个元素的数组\nval arr02 = Array(100); //这个是创建只有100这个Int值的数组，其实调用的是apply方法\n\n\n\"hello\"(1)    //也是调用apply方法,获取第二个字母\n\n//伴生对象\ncompanion object  //和类同名，必须定义在一个scala文件中\n\n\n//主构造器，在类名后买呢直接添加被构造的参数，@BeanProperty可以自动的生成getter和setter方法，类中方法默认好像是私有的，类中的println(name)是可以直接别执行的\nimport scala.beans.BeanProperty\n\nclass Person03 (@BeanProperty var name:String, @BeanProperty var age:Int, @BeanProperty var num:Int){\n\n  println(name)\n\n  def printf(): Unit ={\n    println(\"name:\" + name + \"age:\" + age +\"num:\" + num)\n  }\n\n  /*def  this(name:String, age:Int ,num:Int){\n    this(name, age, num)\n    this.name = name\n    this.age = age+2\n    this.num = num + 100\n  }*/\n\n  def getTheInfo(): Unit ={\n    println(\"name:\" + name + \"age:\" + age +\"num:\" + num)\n    println(\"name:\" + this.name + \"age:\" + this.age +\"num:\" + this.num+100)\n  }\n}\n\n//辅助构造器，构造器中需要调用this()这个父类方法,参数是需要初始化的，同swift类似\nimport scala.beans.BeanProperty\n\nclass Person02 {\n\n  @BeanProperty var name = \"\"\n  @BeanProperty var num=0\n  @BeanProperty var age = 30\n\n  println(\"ivanl001\" + this.age)\n\n  //下面这种都是辅助构造器\n  def this(name: String){\n    this()\n    this.name = name\n  }\n\n  def this(age: Int){\n    this()\n    this.age = age\n  }\n\n  def this(name:String, age: Int){\n    this()\n    this.name = name\n    this.age = age\n  }\n\n}\n\n```\n\n\n"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "title": "13-Spark-0201-scala代码编译的问题",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "*使用idea的时候，会自动编译，idea用maven打包是把编译的class文件放进包中，所以scala代码在idea的时候大多可以打包正常。但是有时候如果编译不及时的时候，就会导致打包有点问题，包里内容不是最新的。解决办法：添加如下maven插件：*\n```xml\n<plugins>\n    <!--这里指定编译器，默认是1.5，这里可以更改为1.8-->\n    <!--Maven default language level is 1.5 (5.0), you will see this version as the Module language level on the screenshot above.-->\n    <!--    This can be changed using maven-compiler-plugin configuration inside pom.xml: -->\n    <plugin>\n        <groupId>org.apache.maven.plugins</groupId>\n        <artifactId>maven-compiler-plugin</artifactId>\n        <configuration>\n            <source>1.8</source>\n            <target>1.8</target>\n        </configuration>\n    </plugin>\n\n    <!--这里指定编译scala的插件，就算是关闭了idea的自动编译，scala也可以编译-->\n    <plugin>\n        <groupId>net.alchim31.maven</groupId>\n        <artifactId>scala-maven-plugin</artifactId>\n        <version>3.2.2</version>\n        <configuration>\n            <recompileMode>incremental</recompileMode>\n        </configuration>\n        <executions>\n            <execution>\n                <goals>\n                    <goal>compile</goal>\n                    <goal>testCompile</goal>\n                </goals>\n            </execution>\n        </executions>\n    </plugin>\n\n</plugins>\n```"
+    }
+  ]
+}

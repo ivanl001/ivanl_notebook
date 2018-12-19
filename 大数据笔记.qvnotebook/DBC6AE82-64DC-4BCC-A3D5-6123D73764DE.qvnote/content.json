@@ -1,0 +1,25 @@
+{
+  "title": "07-HBase-0309-Hbase协处理器",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "*以下步骤貌似在hbase 2.1.0中好像没有成功，换成低版本的1.2的是可以的，2.1版本报错缺少包，不知道是不是需要另外引入*"
+    },
+    {
+      "type": "markdown",
+      "data": "* 01， 首先代码实现\n```java\npackage im.ivanl001.bigData.Hbase;\n\nimport org.apache.hadoop.hbase.CoprocessorEnvironment;\nimport org.apache.hadoop.hbase.client.Durability;\nimport org.apache.hadoop.hbase.client.Put;\nimport org.apache.hadoop.hbase.client.Scan;\nimport org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;\nimport org.apache.hadoop.hbase.coprocessor.ObserverContext;\nimport org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;\nimport org.apache.hadoop.hbase.regionserver.RegionScanner;\nimport org.apache.hadoop.hbase.regionserver.wal.WALEdit;\n\nimport java.io.BufferedWriter;\nimport java.io.FileWriter;\nimport java.io.IOException;\n\n/**\n * #author      : ivanl001\n * #creator     : 2018-11-13 14:52\n * #description : 协处理器\n **/\npublic class A07_Coprocessor extends BaseRegionObserver {\n\n\n    //在下面进行每个生命过程的触发，大多数时间都可以重新触发过程的哈\n    @Override\n    public void start(CoprocessorEnvironment e) throws IOException {\n        super.start(e);\n        FileWriter fw = new FileWriter(\"/data/hbase/userLogs/coprocessor_test.txt\",true);\n\n        fw.write(\"ivanl001 is the king of world!----A07_Coprocessor----start\");\n        fw.flush();\n        fw.close();\n        System.out.println(\"kkkkkk\");\n    }\n\n    @Override\n    public void stop(CoprocessorEnvironment e) throws IOException {\n        super.stop(e);\n    }\n\n    @Override\n    public void preOpen(ObserverContext<RegionCoprocessorEnvironment> e) throws IOException {\n        super.preOpen(e);\n    }\n\n    @Override\n    public void postOpen(ObserverContext<RegionCoprocessorEnvironment> e) {\n        super.postOpen(e);\n    }\n\n    @Override\n    public void prePut(ObserverContext<RegionCoprocessorEnvironment> e, Put put, WALEdit edit, Durability durability) throws IOException {\n        super.prePut(e, put, edit, durability);\n    }\n\n    @Override\n    public void postPut(ObserverContext<RegionCoprocessorEnvironment> e, Put put, WALEdit edit, Durability durability) throws IOException {\n        super.postPut(e, put, edit, durability);\n    }\n\n    @Override\n    public RegionScanner preScannerOpen(ObserverContext<RegionCoprocessorEnvironment> e, Scan scan, RegionScanner s) throws IOException {\n        return super.preScannerOpen(e, scan, s);\n    }\n}\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "* 02, 打包发送到服务器上，注意分发"
+    },
+    {
+      "type": "markdown",
+      "data": "* 03, 配置hbase-site.xml，添加如下的属性 \r\n```xml\r\n<property>\r\n  <name>hbase.coprocessor.region.classes</name>\r\n  <value>im.ivanl001.bigData.Hbase.A07_Coprocessor</value>\r\n</property>\r\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "* 04，重启hbase应该就可以执行协处理器中的功能了，我们这里是打印到文件中，可以在几台区域服务器上看到这些文件了\n  > stop-hbase.sh\n\n  > start-hbase.sh\n  "
+    }
+  ]
+}

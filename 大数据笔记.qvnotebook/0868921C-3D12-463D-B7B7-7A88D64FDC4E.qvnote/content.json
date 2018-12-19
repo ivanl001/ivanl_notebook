@@ -1,0 +1,17 @@
+{
+  "title": "10-Storm-0102-storm介绍,安装,简单实用",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1，主要概念 \n\n![IMAGE](quiver-image-url/BDBFE57EAC76E2D3ED415BBC41369CD3.jpg =951x414)\n\n* 01, Tuple\n  * 主要的数据结构，有序元素的列表\n  \n* 02, Stream\n  * Tuple的序列\n\n* 03，Spouts\n  * 数据流源头，可以读取Kafka队列消息。可以自定义\n\n* 04， Bolts\n  * 转接头，逻辑处理单元。Spout的数据传递给单个bolt，bolt进行计算，产生新的数据传递给下个单元\n\n* 05，Topology\n  * Spout + Bolt 连接在一起，形成拓扑结构，形成有向图，定点就是计算，边就是数据流\n  \n* Nimbus\n  * Nimbus is a master node of Storm cluster. All other nodes in the cluster are called as worker nodes. Master node is responsible for distributing data among all the worker nodes, assign tasks to worker nodes and monitoring failures.\n\n* Supervisor\n  * The nodes that follow instructions given by the nimbus are called as Supervisors. A supervisor has multiple worker processes and it governs worker processes to complete the tasks assigned by the nimbus.\n  \n* Worker process\n  * A worker process will execute tasks related to a specific topology. A worker process will not run a task by itself, instead it creates executors and asks them to perform a particular task. A worker process will have multiple executors.\n  \n* Executor\n  * An executor is nothing but a single thread spawn by a worker process. An executor runs one or more tasks but only for a specific spout or bolt.\n  \n* Task\n  * A task performs actual data processing. So, it is either a spout or a bolt.\n\n* ZooKeeper framework\n\n  * Apache ZooKeeper is a service used by a cluster (group of nodes) to coordinate between themselves and maintaining shared data with robust synchronization techniques. Nimbus is stateless, so it depends on ZooKeeper to monitor the working node status.\n  * ZooKeeper helps the supervisor to interact with the nimbus. It is responsible to maintain the state of nimbus and supervisor."
+    },
+    {
+      "type": "markdown",
+      "data": "## 2，Storm的安装和配置\n* 01，下载，解压，软链，环境变量不再赘述\n* 02，修改配置文件，需要修改的几项如下：\n\n  ```shell\n  \n  storm.local.dir:\"/data/storm\"\n  \n  storm.zookeeper.servers:\n    - \"slave01\"\n    - \"slave02\"\n    - \"slave03\"\n\n  storm.zookeeper.port: 2181\n  \n  nimbus.seeds: [\"master\",\"master01\"]\n  \n  supervisor.slots.ports:\n      - 6700\n      - 6701\n      - 6702\n      - 6703\n      \n      \n  ### ui.* configs are for the master\n  ui.host: 0.0.0.0\n  ui.port: 8080\n  \n  ```\n  \n* 03, 分别在master,master01上启动nimbus进程\n  > storm nimbus &\n\n* 04，分别在slave01,slave02,slave03上启动supervisor\n  > storm supervisor &\n\n* 05, 最后在nimbus上启动ui\n  > storm ui &\n\n* 06, 查看8080端口最终配置是否正确\n  * 如果配置正确，最终会有一个leader，三个supervisor，在ui页面上可以看的出来哈\n  > http://master:8080/index.html\n  > http://master01:8080/index.html\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 3, Storm的使用\n* 01, storm上运行jar包：\n> storm jar Storm_test.jar im.ivanl001.bigData.Storm.A03_WordCount.WordCountApp\n\n"
+    }
+  ]
+}

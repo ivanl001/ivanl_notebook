@@ -1,0 +1,21 @@
+{
+  "title": "13-Spark-0406-共享变量",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "*在分布式的spark集群上，比如说map中的代码都是需要传递到其他节点的，所以里面如果有对象都需要实现序列化接口。当然这个对象也可以直接定义为case类，也就是样例类，因为样例类直接实现了序列化接口*\n*但是这样仅仅能够传递这个类到其他节点，如果说需要信息回传，仅仅实现序列化还是不能满足需求的。这个时候spark就提供了两种共享变量可以实现信息回传到驱动节点：*\n* 1, Broadcast Variables\n* 2, Accumulator"
+    },
+    {
+      "type": "markdown",
+      "data": "### Broadcast Variables\n* 01，创建\n  > val bc1 = sc.broadcast(Array(1,2,3))\n* 02, 获取\n  > val num01 = bc1.value"
+    },
+    {
+      "type": "markdown",
+      "data": "### Accumulator\n```scala\npackage im.ivanl001.bigData.Spark.A07_PersistAndCacheAndBroadcast\nimport org.apache.spark.{SparkConf, SparkContext}\n\nobject A0704_Accumulator {\n\n  /*\n  *\n  * 累加器可以自定义的，可以参考LongAccumulator，继承AccumulatorV2可以自定义\n  *\n   */\n  def main(args: Array[String]): Unit = {\n\n    //创建Spark配置对象\n    val conf = new SparkConf()\n\n    //集群模式下下面两行不要\n    conf.setAppName(\"WordCountScala\")\n    //设置master属性\n    //conf.setMaster(\"spark://master:7077\")\n    conf.setMaster(\"local[2]\")//数字是本地模式下开启几个线程模拟多线程\n\n    //通过conf创建sc\n    val sc = new SparkContext(conf)\n\n    //广播变量\n    val bc1 = sc.broadcast(Array(1,2,3,4,5))\n\n    //其实这个案例并不明确，因为样例类也可以传递到其他节点\n    case class Dog(age:Int)\n    val dog = Dog(10)\n\n    //累加器的使用\n    val acc01 = sc.longAccumulator(\"acc01\")\n\n    var a = 0\n    val rdd1 = sc.makeRDD(1 to 20)\n    val rdd2 = rdd1.map(e => {\n      println(\"ivanl00\" + e)\n\n      acc01.add(1)\n      val num01 = bc1.value(0)\n      a = a+1\n\n      //通过这种方式在分布式程序上跑的时候可以看出来都是哪个服务器在跑哪个任务\n      val info = java.net.InetAddress.getLocalHost.getHostAddress + \":---:\" + Thread.currentThread().getName + \"-----\" + dog.age + \"\\n\"\n      val socket = new java.net.Socket(\"master\", 8888)\n      val out = socket.getOutputStream\n      out.write(info.getBytes())\n      socket.close()\n      println(info)\n      e*2\n    })\n\n    //注意：这里的累加器是可以累加的，这里的值是20\n    println(acc01.value)\n\n    //注意：这里的a还是0\n    println(a)\n\n    rdd2.reduce(_ + _)\n    println(\"finished\")\n  }\n}\n```\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 额，求PI的一个小案例\n\n```scala\npackage im.ivanl001.bigData.Spark.A07_PersistAndCacheAndBroadcast\n\nimport org.apache.spark.{SparkConf, SparkContext}\n\nobject A0705_Accumulator_test {\n\n  def main(args: Array[String]): Unit = {\n\n   /*\n    * 这里利用累加器进行累加计算pi的值\n    * 其实这里不是累加器，就是一个reduce而已\n    */\n    //创建Spark配置对象\n    val conf = new SparkConf()\n\n    //集群模式下下面两行不要\n    conf.setAppName(\"WordCountScala\")\n    //设置master属性\n    //conf.setMaster(\"spark://master:7077\")\n    conf.setMaster(\"local[2]\")//数字是本地模式下开启几个线程模拟多线程\n\n    //通过conf创建sc\n    val sc = new SparkContext(conf)\n\n    val pi = sc.parallelize(1 to 10000).map(e => {\n      val a = 1F / (2*e -1)\n      val f =  if (e%2 == 0)  -1 else 1\n      a*f*4\n    }).reduce(_+_)\n\n    println(pi)\n  }\n}\n```"
+    }
+  ]
+}

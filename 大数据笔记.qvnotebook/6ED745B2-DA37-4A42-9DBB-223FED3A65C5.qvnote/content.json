@@ -1,0 +1,9 @@
+{
+  "title": "01-Java基础-0508-反射和动态代理",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1，反射相关\n* *在0503-nio中的Buffer中可以知道，ByteBuffer.allocateDirect(500 * 1024 * 1024);是可以这样创建离堆内存的，但是因为clean方法是私有的，如果想要释放，就必须得用反射的知识，这里就用这样一个案例演示以下反射相关的知识*\n\n```java\n@Test\npublic void reflectToClean0OffHeap() throws Exception {\n\n    //0, 创建一个500M的离堆缓存\n    ByteBuffer byteBuffer = ByteBuffer.allocateDirect(500 * 1024 * 1024);\n\n    //----------------------------通过反射方式释放上面的500M内存----------------------------------\n    //1，获得DirectByteBuffer类，因为上面ByteBuffer.allocateDirect创建的其实就是DirectByteBuffer类类\n    Class clazz = Class.forName(\"java.nio.DirectByteBuffer\");\n\n    //2，根据字段描述符查找指定的字段\n    Field field = clazz.getDeclaredField(\"cleaner\");\n    //因为是私有的，所以需要设置一下权限让可以访问\n    field.setAccessible(true);\n\n    //3, 拿到字段之后，取得field在byteBuffer上的值，这个不是很明白\n    Object cleaner = field.get(byteBuffer);//这里拿到对象了\n\n    System.out.println(cleaner);\n\n    //4, 再同样的拿到方法\n    Class clazz01 = Class.forName(\"sun.misc.Cleaner\");\n    Method method = clazz01.getDeclaredMethod(\"clean\");\n\n    method.invoke(cleaner);//这里是通过方法调对象\n}\n```"
+    }
+  ]
+}

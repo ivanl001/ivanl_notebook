@@ -1,0 +1,49 @@
+{
+  "title": "13-Spark2.1-08-01-Python-mysql使用",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1, python3.6使用mysql安装需要插件\n*对于python3的话，如果想要连接mysql，需要安装PyMySQL插件，通过pip3安装后， 会自动的安装到python3的插件文件夹中可以在代码中直接进行调用的*\n* pip3 install PyMySQL\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2, 连接测试 select version()\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-02 19:30\n# description : select version()\n#\n\nimport pymysql\n\n# 1, 打开数据库\ndb = pymysql.connect(\"localhost\",\"root\",\"ivanl48265\",\"test\")\n\n# 2, 使用 cursor() 方法创建一个游标对象 cursor\ncursor = db.cursor()\n\n# 3, 使用 execute()  方法执行 SQL 查询\ncursor.execute(\"SELECT version()\")\n\n# 4, 使用 fetchone() 方法获取单条数据.\ndata = cursor.fetchone()\n\n# 5, 关闭数据库连接\ndb.close()\n\n# 6, 解析数据\nprint (\"Database version : %s \" % data)\n\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 3, 创表 create table\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-06 14:42\n# description : create table\n#\nimport pymysql\n\n# 打开数据库连接\ndb = pymysql.connect(\"localhost\",\"root\",\"ivanl48265\",\"test\")\n\n# 使用 cursor() 方法创建一个游标对象 cursor\ncursor = db.cursor()\n\n# 使用 execute() 方法执行 SQL，如果表存在则删除\ncursor.execute(\"drop table if EXISTS employee\")\n\n# 使用预处理语句创建表\nsql = \"\"\"CREATE TABLE employee (\n         FIRST_NAME  CHAR(20) NOT NULL,\n         LAST_NAME  CHAR(20),\n         AGE INT,  \n         SEX CHAR(1),\n         INCOME FLOAT )\"\"\"\n\ncursor.execute(sql)\n\n# 关闭数据库连接\ndb.close()\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 4, 插入 insert into\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-06 14:46\n# description : insert into\n# \n\nimport pymysql\n\n# 打开数据库连接\ndb = pymysql.connect(\"localhost\",\"root\",\"ivanl48265\",\"test\")\n\n# 使用 cursor() 方法创建一个游标对象 cursor\ncursor = db.cursor()\n\n# SQL 插入语句\nsql = \"\"\"INSERT INTO EMPLOYEE(FIRST_NAME,\n         LAST_NAME, AGE, SEX, INCOME)\n         VALUES ('Mac', 'Mohan', 20, 'M', 2000)\"\"\"\n\n# sql = \"INSERT INTO EMPLOYEE(FIRST_NAME, \\\n#        LAST_NAME, AGE, SEX, INCOME) \\\n#        VALUES (%s, %s,  %s,  %s,  %s )\" % \\\n#       ('Mac', 'Mohan', 20, 'M', 2000)\n\ntry:\n    # 执行sql语句\n    cursor.execute(sql)\n    # 提交到数据库执行\n    db.commit()\nexcept:\n    # 如果发生错误则回滚\n    db.rollback()\n\n# 关闭数据库连接\ndb.close()\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 5，单条读取操作fetchone\n\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-02 19:30\n# description : \n#\n\nimport pymysql\n\n# 1, 打开数据库\ndb = pymysql.connect(\"localhost\",\"root\",\"ivanl48265\",\"test\")\n\n# 2, 使用 cursor() 方法创建一个游标对象 cursor\ncursor = db.cursor()\n\n# 3, 使用 execute()  方法执行 SQL 查询\ncursor.execute(\"SELECT * from users\")\n\n# 4, 使用 fetchone() 方法获取单条数据.\ndata = cursor.fetchone()\n\n# 5, 关闭数据库连接\ndb.close()\n\n# 6, 解析数据\nid = data[0]\nemail = data[1]\npassword = data[2]\n\n# print (\"Database version : %s \" % data)\nprint(str(id) + \"-------:\" + email + \"------:\" + password)\n\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 6, fetchall\n\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-06 14:36\n# description : fetchall\n#\n\nimport pymysql\n\n# 1, 打开数据库\ndb = pymysql.connect(\"localhost\",\"root\",\"ivanl48265\",\"test\")\n\n# 2, 使用 cursor() 方法创建一个游标对象 cursor\ncursor = db.cursor()\n\n# 3, 使用 execute()  方法执行 SQL 查询\ncursor.execute(\"SELECT * from users\")\n\n# 4, 使用 fetchone() 方法获取单条数据.\ndata = cursor.fetchall()\n\n# 5, 关闭数据库连接\ndb.close()\n\n# 6, 解析数据\nfor row in data:\n\n    id = row[0]\n    email = row[1]\n    password = row[2]\n\n    # print (\"Database version : %s \" % data)\n    print(str(id) + \"-------:\" + email + \"------:\" + password)\n\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 7, 更新update\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-06 14:53\n# description : update\n#\n\nimport pymysql\n\n# 1, 打开数据库\ndb = pymysql.connect(\"localhost\",\"root\",\"ivanl48265\",\"test\")\n\n# 2, 使用 cursor() 方法创建一个游标对象 cursor\ncursor = db.cursor()\n\n# 3, 使用 execute()  方法执行 SQL 查询\nsql = \"UPDATE EMPLOYEE SET AGE = AGE + 1 WHERE SEX = '%c'\" % ('M')\n\n\ntry:\n    # 执行SQL语句\n    rowcount=cursor.execute(sql)\n    # 提交到数据库执行\n    db.commit()\nexcept:\n    # 发生错误时回滚\n    db.rollback()\n\n\n# 4, 关闭数据库连接\ndb.close()\n\n# 5, 查看影响行\nprint(rowcount)\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 8, 删除delete\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-06 15:01\n# description : delete\n#\n\n\nimport pymysql\n\n# 1, 打开数据库\ndb = pymysql.connect(\"localhost\",\"root\",\"ivanl48265\",\"test\")\n\n# 2, 使用 cursor() 方法创建一个游标对象 cursor\ncursor = db.cursor()\n\n# 3, 使用 execute()  方法执行 SQL 查询\nsql = \"DELETE FROM EMPLOYEE WHERE AGE > %s\" % (20)\n\ntry:\n    # 执行SQL语句\n    rowcount=cursor.execute(sql)\n    # 提交到数据库执行\n    db.commit()\nexcept:\n    # 发生错误时回滚\n    db.rollback()\n\n# 4, 关闭数据库连接\ndb.close()\n\n# 5, 查看影响行\nprint(rowcount)\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 9, 手动提交事务\n\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-06 15:12\n# description : 手动提交事物\n#\nimport pymysql\n\n# 1, 打开数据库\ndb = pymysql.connect(\"localhost\",\"root\",\"ivanl48265\",\"test\")\n# 关闭事物的自动提交\ndb.autocommit(False)\n\ntry:\n    # ------- 开启事物 -------\n    db.begin()\n\n    # 2, 使用 cursor() 方法创建一个游标对象 cursor\n    cursor = db.cursor()\n\n    # 3, 使用 execute()  方法执行 SQL 查询\n    sql = \"DELETE FROM EMPLOYEE WHERE AGE > %s\" % (40)\n\n    # 4, 执行SQL语句\n    rowcount=cursor.execute(sql)\n\n    # 5, 提交到数据库执行\n    db.commit()\n\n    # 6, 关闭游标\n    cursor.close()\n\nexcept:\n    # 发生错误时回滚\n    db.rollback()\n\n# 4, 关闭数据库连接\ndb.close()\n\n# 5, 查看影响行\nprint(rowcount)\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 10, count\n\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-06 15:21\n# description : \n#\n\nimport pymysql\n\n# 1, 打开数据库\ndb = pymysql.connect(\"localhost\",\"root\",\"ivanl48265\",\"test\")\n\n# 2, 获取游标\ncursor = db.cursor()\n\n# 3, 执行\ncursor.execute(\"select count(*) from employee\")\n\n# 4，关闭连接\ndb.close()\n\n# 5, 获取结果并打印\ncount = cursor.fetchone()\nprint(count)\nprint(count[0])\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 11, 存储过程 procedure和函数的调用\n\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-06 15:26\n# description :\n#\n\n\nimport pymysql\n\n# --------------------------调用存储过程------------------------------\n# 1, 打开数据库\ndb = pymysql.connect(\"localhost\",\"root\",\"ivanl48265\",\"test\")\n\n# 2, 获取游标\ncursor = db.cursor()\n\n# 3, 执行,这里是调用存储过程\ncursor.execute(\"call batchInsert(1000)\")\n\n# 4，关闭连接\ndb.close()\n\n# 5, 获取结果并打印\nprint(\"proceduce called\")\n\n\n# --------------------------调用函数------------------------------\n# 1, 打开数据库\ndb = pymysql.connect(\"localhost\",\"root\",\"ivanl48265\",\"test\")\n\n# 2, 获取游标\ncursor = db.cursor()\n\n# 3, 执行,这里是调用 函数\ncursor.execute(\"select test.imSumFunc(10, 20)\")\n\n# 4，关闭连接\ndb.close()\n\n# 5, 获取结果并打印\nresult = cursor.fetchone()\nprint(result)\nprint(result[0])\n```"
+    }
+  ]
+}

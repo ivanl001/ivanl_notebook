@@ -1,0 +1,9 @@
+{
+  "title": "0000-大数据分布式启动流程",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 大数据集群的一般开启流程：\n\n* 1, 首先开启zk，在需要开启的服务器上输入如下命令，注意：最好是奇数台服务器\n\n  > zkServer.sh start\n\t> zkServer.sh status   #查看状态，如果是三台，一般中间启动的那一台是leader哈，规律哈哈哈\n\n* 2，hadoop的start-all命令启动hadoop的所有节点\n\t  *有一点需要注意：namenode和datanode的高可用可以通过start-all.sh完全搞定，但是hadoop没有启动两个resourcemanager,也就是yarn的高可用需要手动启动另外一个resourcemanager*\n\n\t > start-all.sh \n\n\t通过页面查看namenode和datanode状态:\n\t  http://master:50070/\n\t  http://master01:50070/\n\n\t通过页面查看yarn状态:\n\t\thttp://master:8088/cluster\n\t\thttp://master01:8088/cluster\n\n\n* 3, hbase的启动\n\t*#master(主用), master01(备用),   slave01(节点), slave02(节点), slave03(节点)*\n\t> start-hbase.sh\n\t\t\t\t\t   \n\t通过页面查看\n\t\thttp://master:16010\n\t\thttp://master01:16010\n\n\n\n\t\n\n\t\n\n\n"
+    }
+  ]
+}

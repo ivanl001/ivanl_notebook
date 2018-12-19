@@ -1,0 +1,13 @@
+{
+  "title": "14-Calllog项目-05: Yarn设置内存限制",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "> 11, yarn的内存设置"
+    },
+    {
+      "type": "markdown",
+      "data": "## 11，yarn的内存限制\n\n* 修改[yarn-site.xml]\n\n```xml\n<!--默认限制是开启的，最多分配给容器8G的物理内存，虚拟内存是物理内存的2.1倍。-->\n<property>\n\t<name>yarn.nodemanager.resource.memory-mb</name>\n\t<value>8192</value>\n</property>\n\n<!--这里是关闭最大内存限制-->\n<property>\n\t<name>yarn.nodemanager.pmem-check-enabled</name>\n\t<value>false</value>\n</property>\n\n<property>\n\t<name>yarn.nodemanager.vmem-check-enabled</name>\n\t<value>false</value>\n</property>\n\n<property>\n\t<name>yarn.nodemanager.vmem-pmem-ratio</name>\n\t<value>2.1</value>\n</property>\n```"
+    }
+  ]
+}

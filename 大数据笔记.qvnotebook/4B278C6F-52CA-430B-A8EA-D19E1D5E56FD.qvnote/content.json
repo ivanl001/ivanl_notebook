@@ -1,0 +1,25 @@
+{
+  "title": "01-Java基础-0503-NIO",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "> NIO: non-block io 无阻塞IO\n\n> 举个简单的例子：比如之前socket中的tcp案例的话：每一个socket客户端，需要同时开启两个线程：一个循环不断的发送消息，一个用来不间断的接受消息。多个socket客户端的话，每个客户端同样也是需要创建两个线程。对于服务器端的serverSocket也是一样，accept方法每次接受到客户端连接，都需要创建一个线程。如果有很多客户端同时连接，但是却没有发送消息，就会创建很多线程进行等待，会造成较大的浪费\n\n> NIO的概念我的理解如下：比如说服务器端，每次接收到客户端的时候，我们不再创建新的线程，还是照样放在一个线程中，而且我会有一个选择器，把那些有发送消息的socket给挑选出来，然后在同一个线程中，对选择器中的选出来有消息的socket进行循环快速处理\n\n> "
+    },
+    {
+      "type": "markdown",
+      "data": "## 1，Buffer的几个概念，Buffer主要用于NIO中\n\n> Buffer是NIO中操作数据的主要方式，比如说文件IO的时候，如果是常规的方式应该是：把文件读入到系统内存，系统内存再copy到JVM的内存中，JVM的内存再对那些字节进行相应的操作。也就是从离堆拷贝到堆内存中。但是Buffer可以直接操纵离堆内存，省去了copy的步骤，效率更高一些。\n\n> Buffer的话是不需要直接操作字节的，直接可以调用Buffer的相关方法即可\n\n* mark        # 标记, 需要小于位置\n* position    # 位置, 需要小于限制\n* limit       # 限制, 需要小于容量\n* capacity    # 容量\n### 1.1, 简单的理解\n* *我的简单理解就是：容量是这块缓存是多大，而limit限制了可以使用的容量。数据大小不可大于限制的大小，而位置是下次写入的位置，标记的话代表下次写入从哪里开始写*\n```java\n// 下面这个叫做拍板，拍板好之后就可以准备写出数据了\n//fter a sequence of channel-read or <i>put</i> operations, invoke this method to prepare for a sequence of channel-write or relative <i>get</i> operations.\n\npublic final Buffer flip() {\n    limit = position;//定义以下最大的位置，写出的时候的终点位置\n    position = 0;\n    mark = -1;\n    return this;\n}\n```\n\n![IMAGE](quiver-image-url/B390D04729163554A06791F87B771137.jpg =919x393)\n\n* ByteBuffer下有两个子类：HeapByteBuffer(A read/write HeapByteBuffer)和MappedByteBuffer(离堆内存)，ByteBuffer.allocateDirect其实返回的就是DirectByteBuffer\n* MappedByteBuffer有一个子类：DirectByteBuffer，ByteBuffer.allocateDirect其实返回的就是DirectByteBuffer，同时下面需要用到的清理类Cleaner也是在DirectByteBuffer中\n* HeapByteBuffer中是没有清理方法的，好像只有DirectByteBuffer，也就是离堆内存才会清理，可能是对内存方法有垃圾回收机制，然后可以自动的进行回收清理吧\n\n\n### 1.2，操纵离堆内存和非堆内存\n```\n//第二个其实就是离堆内存，也就是虚拟机外部的，也就是系统堆内存\n@Test\npublic void byteBuffer() {\n\n    //在这里操纵内存\n    System.out.println(\"开始～\");\n\n    //这里内存是Old区的，是在jvm内存的一个年老区\n    ByteBuffer.allocate(500 * 1024 * 1024);\n    //这里的分配的直接内存缓冲区，内存是jvm之外的，其实也就是系统的内存\n    ByteBuffer.allocateDirect(500 * 1024 * 1024);\n\n    System.out.println(\"搞定～\");\n}\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2，Channel\n* channel 是java.nio中的新的抽象\n* channel是一个在打开File或是Socket上执行IO操作或者是各种控制操作的句柄。\n* java.nio使用 RandomAccessFile, FileInputStream, FileOutputStream, Socket, ServerSocket or DatagramSocket object关联通道。\n* channel提供了NIO的特定功能。.\n* NIO buffer可以直接对channel进行读写.\n\n![IMAGE](quiver-image-url/C799F2C2BF103333C636CF5638085431.jpg =919x541)\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "### 2.1, FileChannel\n* 2.1.1, 通过文件通道快速的操纵文件等,还可以通过ByteBuffer对象调用方法操纵字节数组\n```java\n//文件通道，其实就是FileInputStream和FileOutputStream的NIO方法\n@Test\npublic void fileChannelTest() throws IOException {\n\n    FileInputStream fileInputStream = new FileInputStream(\"/Users/ivanl001/Desktop/from/01.jpg\");\n    //这里和bufferedInputStream有点类似\n    FileChannel fileChannel = fileInputStream.getChannel();\n\n    FileOutputStream fileOutputStream = new FileOutputStream(\"/Users/ivanl001/Desktop/to/01.jpg\");\n    FileChannel fileChannel1 = fileOutputStream.getChannel();\n\n    //return new HeapByteBuffer(capacity, capacity);，下面这个操作的是堆内存\n    //这里我们直接通过ByteBuffer操纵字节数组，不需要像byte[] bytes = new byte[1024];这样还要手动的处理这些字节数组\n    ByteBuffer byteBuffer = ByteBuffer.allocate(1024);\n    while (fileChannel.read(byteBuffer) != -1) {\n        byteBuffer.flip();//flip的作用应该是自动检测写出的长度，就像fileOutputStream.write(bytes, 0, offset);需要指定offset一样\n        fileChannel1.write(byteBuffer);\n        byteBuffer.clear();\n    }\n\n    fileChannel.close();\n    fileChannel1.close();\n\n\n    /*//2,1024字节缓存读取\n    int offset = 0;\n    byte[] bytes = new byte[1024];\n    while ((offset = fileInputStream.read(bytes)) != -1) {\n        fileOutputStream.write(bytes, 0, offset);\n    }\n    fileInputStream.close();\n    fileOutputStream.close();*/\n}\n```\n* 2.1.2，把文件映射到内存中，通过操纵内存来操纵文件，速度快，这里操纵的是对内存\n```java\n//这里的作用是把文件映射到内存中，同时和文件同步，不会阻塞，读取和改写速度比较快，同时可以同步到文件中\n@Test\npublic void ramdomAccessFileMap() throws IOException {\n\n    File file = new File(\"/Users/ivanl001/Desktop/from/zhang.txt\");\n    RandomAccessFile randomAccessFile = new RandomAccessFile(file, \"rw\");\n    Long length = randomAccessFile.length();\n    System.out.println(length);\n    //这个是Buffer的子类\n    MappedByteBuffer mappedByteBuffer = randomAccessFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, 5);\n    for (int i=0;i<mappedByteBuffer.capacity();i++) {\n        System.out.println((char)mappedByteBuffer.get(i));\n    }\n\n    //这里是修改某些字节的值，通过掉方修改，不需要直接操纵字节数组来更改\n    mappedByteBuffer.put(0, (byte)'a');\n}\n```\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

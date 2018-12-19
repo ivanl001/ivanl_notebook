@@ -1,0 +1,29 @@
+{
+  "title": "06-Zookeeper-0202-zk分布式部署及hadoop的高可用配置",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "*在这之前请先参考“03-Hadoop-0901-机架感知和HA”的HA配置*"
+    },
+    {
+      "type": "markdown",
+      "data": "## 1，zk分布式部署\n\n* 01, 准备三台主机，我们这里用slave01, slave02, slave03\n\n* 02，在zoo.cfg中添加服务器信息，其中，server.后面的数字是dataDir文件夹下的myid文件的内容，通过这个文件内容来识别不同的zookeeper\n\n  ```\n  dataDir=/data/zookeeper\n\n  server.1=slave01:2888:3888\n  server.2=slave02:2888:3888\n  server.3=slave03:2888:3888\n  ```\n  \n* 03，因为02中配置的myid文件的内容，所以需要在slave01, slave02, slave03三台服务器的/data/zookeeper文件夹下建立自己的myid文件，内容分别是上面对应的三个数值\n\n* 04, 顺便更改一下日志保存目录，也就是log4j.properties\n\n  ```\n  zookeeper.log.dir=/data/zookeeper/logs/\n  zookeeper.tracelog.dir=/data/zookeeper/logs/\n  ```\n\n* 05，启动\n  > zkServer.sh start\n\n* 06, 查看每台服务器的状态,第一台启动的时候因为不够半数，所以既不是leader，也不是foller，全部启动后就ok了哈\n\n  > zkServer.sh status\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2，hdfs的自动容灾配置\n\n* 01, 关闭所有的jps进程\n  > stop-all.sh\n\n* 02, 配置hdfs-site.xml，新增如下配置:\n  \n  ```xml\n  <property>\n\t  <name>dfs.ha.automatic-failover.enabled</name>\n\t\t<value>true</value>\n\t</property>\n  ```\n* 03, 配置core-site.xml，新增如下配置\n  \n  ```xml\n  <property>\n\t\t<name>ha.zookeeper.quorum</name>\n\t\t<value>slave01:2181,slave02:2181,slave03:2181</value>\n\t</property>\n  ```\n  \n * 04, 同步所有的上面两个文件\n \n * 05，关闭zookeeper，最好清理一下version，log等没用的文件，然后重新开启zookeeper\n \n * 06, 登陆其中一个nn主机，初始化zk\n   > hdfs zkfc -formatZK\n\n* 07，通过一下命令启动集群\n  > start-dfs.sh\n* "
+    },
+    {
+      "type": "markdown",
+      "data": "## 3, rm(resourcemanager)的自动容灾\n* 01，配置yarn-site.xml, 添加如下属性\n  ```\n  <property>\n  \t<name>yarn.resourcemanager.ha.enabled</name>\n  \t<value>true</value>\n  </property>\n  <property>\n  \t<name>yarn.resourcemanager.cluster-id</name>\n  \t<value>cluster1</value>\n  </property>\n  <property>\n  \t<name>yarn.resourcemanager.ha.rm-ids</name>\n  \t<value>rm1,rm2</value>\n  </property>\n  <property>\n  \t<name>yarn.resourcemanager.hostname.rm1</name>\n  \t<value>master</value>\n  </property>\n  <property>\n  \t<name>yarn.resourcemanager.hostname.rm2</name>\n  \t<value>master01</value>\n  </property>\n  <property>\n  \t<name>yarn.resourcemanager.webapp.address.rm1</name>\n  \t<value>master:8088</value>\n  </property>\n  <property>\n  \t<name>yarn.resourcemanager.webapp.address.rm2</name>\n  \t<value>master01:8088</value>\n  </property>\n  <property>\n  \t<name>yarn.resourcemanager.zk-address</name>\n  \t<value>slave01:2181,slave02:2181,slave03:2181</value>\n  </property>\n  ```\n* 02.启动yarn集群\n\t>start-yarn.sh\n\n* 03.hadoop没有启动两个resourcemanager,需要手动启动另外一个\n\t>yarn-daemon.sh start resourcemanager\n\n* 04, 使用管理命令\n\t\t//查看状态\n\t>yarn rmadmin -getServiceState rm1\n\n\t//切换状态到standby\n\t>yarn rmadmin -transitionToStandby rm1\n\t\n* 5.查看webui\n  http://master:8088\n  http://master01:8088\n\n* 6.做容灾模拟.\n\t> kill -9"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    },
+    {
+      "type": "markdown",
+      "data": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "title": "01-Java基础-0204-JVM相关",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1，栈内存和堆内存\n* 内存简单理解可以分为：堆内存，栈内存和方法区。\n* 堆内存主要存对象，数组等，如果无限制的循环的往数组中添加对象，很快就会造成堆内存满\n* 栈内存主要存储主函数和调用的方法？，比如说循环调用很快就会造成栈内存压力过大，栈内存溢出\n* 方法区主要存储静态变量和静态方法？？？\n\n* 监控中的几个内存分区：\n* --------------------heap--------------------\n* 1，Eden区，伊甸区，当前运行的一些内存主要在这里\n* 2, S0, 也就是幸存一区，Eden区的对象被gc，回收后会先进入到幸存一区\n* 3, S1, 也即是幸存二区，幸存一区的对象会被回收到幸存二区\n* 4，old,也就是年老区\n* ------------1-3都是年轻代，4是年老代，这四个都是heap？，也就是堆内存------\n* -------------------non-heap,非堆--------------------\n* 5，metaspace, 也即是方法区，非堆，这里是JVM中heap以外的区域\n* --------------------off-heap, 离堆------------------\n* 6，off-heap, 这是离堆，其实已经是jvm外的内存\n\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "### 1.1， 栈内存\n* 栈内存是主要存储主函数和方法的，先进后出\n* 主函数先压进去，然后是压如主函数先执行的方法，再压入主函数中后面的方法，之后后面的方法执行完了之后出栈，之后是前面的方法执行结束出栈，最后主函数执行完成，主函数出栈，程序结束\n* 栈内存默认是1M\n> idea中更改堆内存的方法：VM options：-Xss10M -ea  \n> 默认不写的话是1M"
+    },
+    {
+      "type": "markdown",
+      "data": "### 1.2，堆内存\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2，一些代码演示\n```java\npackage im.ivanl001.bigData.java_01;\n\nimport org.junit.Test;\n\nimport java.util.ArrayList;\nimport java.util.List;\n\n/**\n * #author      : ivanl001\n * #creator     : 2018-10-10 19:21\n * #description :\n **/\npublic class A03_JVMAbout {\n\n    //这里演示了一个因为循环调用导致的栈内存溢出的报错\n    //栈内存中主要存储方法等，如果循环调用就会造成栈内存溢出\n    @Test\n    public void jvmStackOverflowTest(){\n        callSelf(0);\n    }\n\n    public void callSelf(int n) {\n        System.out.println(n);\n        n += 1;\n        try {\n            Thread.sleep(1);\n        } catch (InterruptedException e) {\n            e.printStackTrace();\n        }\n        System.out.println(\"--------------\"+n);\n        callSelf(n);\n    }\n\n    //这里演示以下堆内存不断增加的案例\n    //堆中主要存储对象和数组，如果对象和数组不断增加，就会不断的增加堆内存\n    @Test\n    public void jvmHeapMemory(){\n\n        List<byte[]> list = new ArrayList<>();\n        for (;;) {\n            list.add(new byte[1024 * 1024]);\n        }\n\n        /*//如果去掉\n        List<Cat> cats = new ArrayList<>();\n        int i = 0;\n        for (;;) {\n            cats.add(new Cat());\n            System.out.println(i++);\n            System.out.println(\"count:\" + cats.size());\n        }*/\n    }\n\n    @Test\n    public void jvmGC(){\n        for (;;) {\n            byte[] b = new byte[1024 * 1024 * 256];//这里是可以直接被回收调的,回收机制：内存快满的时候进行回收\n\n            //如果想要手动的进行回收如下：\n            System.gc();\n        }\n    }\n}\n\n```"
+    }
+  ]
+}

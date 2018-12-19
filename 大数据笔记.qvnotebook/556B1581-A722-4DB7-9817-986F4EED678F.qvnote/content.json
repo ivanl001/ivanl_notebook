@@ -1,0 +1,21 @@
+{
+  "title": "13-Spark2.1-08-05-Python-多线程和时间模块简单使用",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1, 线程基础使用\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-06 16:21\n# description : \n# 这个是高级接口，它的低级接口是_thread\n\nimport threading\n\n# 这个是threading的低级接口\nimport _thread\n\n# 定义一个函数，方便多线程演示\ndef hello():\n    tname = threading.current_thread().getName()\n    print(tname)\n    print(\"ivanl001 is the king of world!\")\n    for i in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:\n        print(tname + \":\" + str(i))\n\n# 注意一下：这里就算没有参数，也需要传递进去一个空的元祖\nthreading._start_new_thread(hello,())\nthreading._start_new_thread(hello,())\n#_thread.start_new_thread(hello, ())\n\n# 这里一定要注意：主线程不能死，祝线程一旦死掉，分线程就不能打印出内容了\n# 如果这样的话，比较容易太耗资源,所以还是和java一样，用休眠的方法\n# while True:\n#     pass\n\nimport time\n\n# 获取当前毫秒值\ncurrent = int(time.time()*1000)\nprint(current)\n\n# 利用time模块让主进程休眠2秒钟\ntime.sleep(2)\n\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2，多线程的卖票问题\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-08 12:16\n# description : \n# \n\nimport threading\nimport _thread\n\nimport time\n\n\nclass TicketSeller(threading.Thread):\n\n    # 这种变量请使用类名进行调用TicketSeller.ticketCount\n    ticketCount = 100\n\n    def run(self):\n        # 父类其实没什么实现，所以这里不需要继承\n        # super().run()\n\n        for i in range(TicketSeller.ticketCount):\n            if TicketSeller.ticketCount <= 0:\n                print(\"票已经卖完\")\n                break\n\n            print(\"线程是：\" + self.name + \"-----\" + str(TicketSeller.ticketCount))\n            TicketSeller.ticketCount -= 1\n            time.sleep(2)\n\n\nseller01 = TicketSeller()\n# 这里的名字是线程的方法哈\nseller01.setName(\"ivanl001\")\n\n\nseller02 = TicketSeller()\n# # 这里的名字是线程的方法哈\nseller02.setName(\"ivanl002\")\n\nseller01.start()\nseller02.start()\n\n# time.sleep(3)\n# print(TicketSeller.ticketCount)\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 3，多线程卖票问题解决：加锁\n\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-08 12:16\n# description : \n# \n\nimport threading\nimport _thread\n\nimport time\n\n\nclass TicketSeller(threading.Thread):\n\n    # 这种变量请使用类名进行调用TicketSeller.ticketCount\n    ticketCount = 100\n\n    # 注意：这里要加括号哈\n    lock = threading.Lock()\n\n\n    def run(self):\n        # 父类其实没什么实现，所以这里不需要继承\n        # super().run()\n\n        for i in range(TicketSeller.ticketCount):\n            if TicketSeller.ticketCount <= 0:\n                print(\"票已经卖完\")\n                break\n\n            # 在这里加锁\n            TicketSeller.lock.acquire()\n            print(\"线程是：\" + self.name + \"-----\" + str(TicketSeller.ticketCount))\n            TicketSeller.ticketCount -= 1\n            # 这里休眠一秒是为了显示出购票的问题\n            # time.sleep(1)\n            # 在这里释放锁\n            TicketSeller.lock.release()\n\n\n\nseller01 = TicketSeller()\n# 这里的名字是线程的方法哈\nseller01.setName(\"ivanl001\")\n\n\nseller02 = TicketSeller()\n# # 这里的名字是线程的方法哈\nseller02.setName(\"ivanl002\")\n\nseller01.start()\nseller02.start()\n\n# time.sleep(3)\n# print(TicketSeller.ticketCount)\n```"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

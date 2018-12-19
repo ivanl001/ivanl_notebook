@@ -1,0 +1,85 @@
+{
+  "title": "02-Linux基础-0500-shell命令",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "*''在shell中相当于转译，任何中间的符号都不会起作用*"
+    },
+    {
+      "type": "markdown",
+      "data": "## 1，shell变量"
+    },
+    {
+      "type": "markdown",
+      "data": "\n### 1.1，用户自定义变量\n\n*用户自定义的变量，作用域限于当前的shell环境中*\n\n> 定义时赋值变量\n\n```shell\nname=ivanl001\n```\n\n> 把执行结果赋值给自定义变量\n\n```shell\ntheList=`ls -la`\n# 上面的``也可以用$()代替， $(())在做运算嵌套的时候特别好用，``在做运算嵌套的时候需要转义，相对麻烦，具体看后面的运算符\ntheList=$(ls -la)\n```\n\n```shell\nip=192.168.10.10   //把ip地址赋给一个变量\necho $ip           //通过这个可以取出ip\nping `echo $ip`    //通过这个可以嵌套的ping 192.168.10.10\nping $(echo $ip)   //这样也是可以的，完全没问题\n```\n\n\n\n> 把一个变量赋值给另外一个变量\n\n```shell\nipaddr=192.168.147.147\n# 如何把ipaddr取出来，比如说拼接成其他字符串\nurl=${ipaddr}:8080\n# 或者如下\nurl=\"$ipaddr\":8080\n\n```\n\n> 删除变量\n\n```shell\nunset theList\n# 查看变量\nset\n```\n\n\n\n### 1.2，系统变量\n\n*作用域是当前shell环境和其所有子shell环境*\n\n```shell\nname=ivanl001\necho name #这里有值\nbash # 新建shell子环境\necho name #这里是没有值的，因为自定义的变量作用域限当前shell，子环境中不起作用\nexit # 回到name的那个shell环境\nexport name # 这个可以导出，使其在子环境shell中也可以\nbash\necho $name\n```\n\n\n\n### 1.3，位置参数变量\n\n`$?` :上一个执行命令的执行结果, 0代表成功或者肯定，1代表失败或者否定，这个其实是预定义变量\n\n`$#` :参数的个数\n\n`$1` :第一个参数的内容，取出第几个参数，数字就写几，如果数字大于10， 需要括号，${10}\n\n`$@` :取出所有的参数\n\n`$*` : 也是取出所有的参数，和$@不同的地方是这个会把所有的参数当成一个整体，而\\$@则会分别对待每个参数\n\n \n\n\n\n### 1.4，预定义变量\n\n> $? : 上一个执行命令的执行结果, 0代表成功，1代表失败\n\n> $$: 表示当前进程的进程号\n\n> $!:后台运行的最后一个的进程号，也即是最后一个被放入后台运行的进程的pid，后台运行  cmd &\n\n\n\n```shell\n#!/bin/bash\n\necho The first shell run successfully!\necho The count of params is: $#; #打印参数的个数\necho The first param is: $1; #打印第一个参数\necho All the params is: $@; #打印所有参数\n\n# 变量的定义与使用\n# 1, 环境变量的使用，也即是系统中带有的变量，用$符号\necho The java path is :$JAVA_HOME;\n\necho -----------------'$*'---------------\nfor i in $*;\ndo echo $i;\ndone\n\necho ----------------'$@'--------------\nfor i in $@;\ndo echo $i;\ndone\n\necho ---------------'\"$*\"'------------\nfor i in \"$*\";\ndo echo $i;\ndone\n\necho --------------'\"$@\"'-------------\nfor i in \"$@\";\ndo echo $i;\ndone\n\necho --------------'shift'------------\nshift\necho $*\n\necho -------------'shift loop'---------\nfor i in $@;\ndo echo $i;\nshift;\ndone\n```\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2，shell脚本的执行三种方式和read命令"
+    },
+    {
+      "type": "markdown",
+      "data": "### 2.1,  source或.， 这个是在当前shell环境执行\n\n`source runShell.sh`\n\n`. runShell.sh`\n\n### 2.2, 调用命令执行\n\n`bash runShell.sh`\n\n`sh runShell.sh`\n\n### 2.3, 相对路径和绝对路径执行\n\n`./runShell.sh`\n\n`/home/master/shell/runShell.sh`\n\n* 第一种是在当前的shell环境中执行的，后面两种会新开一个shell\n\n\n### 2.4,  read命令\n\n```shell\n#! /bin/bash\n\n# read命令相当于屏幕输入\n\nread -p \"please enter your name:\" name name01 name02\n\necho '你输入的名字是：'$name\necho 'name01:'$name01\necho 'name02'$name02\n\n# 这里是隐式输入，不是显示出来\nread -sp \"please enter your password:\" password\necho '你输入的密码这里不再显示******'\n```\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 3，运算符"
+    },
+    {
+      "type": "markdown",
+      "data": "### 3.1,\\`expr 3 + 2\\`\n\n\n\n### 3.2,\\$((3 + 2))\n\n\n\n```shell\n#! /bin/bash\n\n# 这样是不对的，直接报错命令找不到，可以更改成后面的两种方式\n#sum01 = 3 + 2\n\n# 第一种方式，必须要有空格, 如果想要把运算结果赋值，需要家``, 另外需要注意：等号前后都不能有空格\nsum01=`expr 3 + 2`\necho 'sum01:'$sum01\n\n# 还是第一种方式 expr 10 + 10\nnum01=10\nnum02=20\nsum02=`expr $num01 + $num02`\necho 'sum02:'$sum02\n\n# 第二种方式  $(())\nsum03=$(($num01 + $num02))\necho 'sum03:'$sum03\n\n\necho '---------------下面计算(3+2)*5----------------'\necho '方式一：`expr \\`expr 3 + 3\\` \\* 5`'\nsum04=`expr \\`expr 3 + 2\\` \\* 5`\necho 'sum04:' $sum04\n\n\necho '方式二：$(((3+2)*5)), 一共三对括号，外面两对是运算，中间一对是先让加号运算'\nsum05=$(((3+2)*5))\necho 'sum05:' $sum05\n```\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 4, 几个常用符号的比较"
+    },
+    {
+      "type": "markdown",
+      "data": "### 4.1，``\n\n> *``*  里面的当成命令进行执行\n\n### 4.2, $()\n\n> *$()* 和飘号相同，也是把里面的当成命令进行执行\n\n### 4.3, ${}\n\n> *${}*  取变量值，比如之前的ip拼接的案例中取出ip，url=${ipaddr}:8080，一般情况下用\\$ipaddr也可以取出来，但是如果后面要拼接数字活着字母的时候，比如说\\$ipaddr8080的时候，这个时候系统就不能判断是要取出ipaddr还是ipaddr8080了， 所以用\\${ipaddr}8080轻松解决\n\n### 4.4, $(())\n\n> $(())  用于数值运算等"
+    },
+    {
+      "type": "markdown",
+      "data": "## 5，条件判断(测试)"
+    },
+    {
+      "type": "markdown",
+      "data": "> 方式一： test expression\n\n> 方式二：[expression]\n\n*注意：expression前后和 [ ] 都有一个空格*\n\n*eg: [];echo $?*\n\n* 测试范围：字符串，数字，文件\n* 表达式结果为真，test返回值为0，用$?接受后即可看到, 否则为非0\n\n### 5.1，字符串测试\n\n`test str01 == str02`: 是否相等，相等为0\n\n`test str01 != str02` : 是否不想等，不想等为0\n\n`test str01` : 是否为不为空，为空返回0\n\n`test -n str01` : 是否不为空，不为空，返回0\n\n`test -z str01` : 是否为空，为空，返回0\n\n```shell\n#! /bin/bash\n\n#---------- 下面的分号是命令连接符，连接两个命令\n\nname=ivanl001\n\n# 判断相等\ntest $name == ivanl001; echo $?\n\n# 判断不想等\ntest $name != ivanl001; echo $?\n\n# 判断不是空\ntest $name ; echo $?\n\n# 判断不是空\ntest -n $name; echo $?\n\n# 判断是空\ntest -z $name; echo $?\n\n# ----结果是：0 1 0 0 1\n```\n\n\n\n* 所有的test都可以用[]取代，如下：后面的例子直接用[]\n\n```shell\n#! /bin/bash\n\n#---------- 下面的分号是命令连接符，连接两个命令\n\nname=ivanl001\n\n# 判断相等\n[ $name == ivanl001 ]; echo $?\n\n# 判断不想等\n[ $name != ivanl001 ]; echo $?\n\n# 判断不是空\n[ $name ]; echo $?\n\n# 判断不是空\n[ -n $name ]; echo $?\n\n# 判断是空\n[ -z $name ]; echo $?\n\n# ----结果是：0 1 0 0 1\n```\n\n\n\n### 5.2，数字测试\n> 注意：空格一定要空！！！空格一定要空！！！！空格一定要空！！！！！\n\n`[ 3 -eq 4 ]`: 判断相等\n\n`[ 3 -ge 4 ]`: 判断大于或者等于\n\n`[ 3 -gt 4 ]`: 判断大于\n\n`[ 3 -le 4 ]`： 判断小于等于\n\n`[ 3 -lt 4 ]`：判断小于\n\n`[ 3 -ne 4 ]`: 判断不相等\n\n```shell\n#! /bin/bash\n\nnum01=4\nnum02=5\n\n# 判断等于\n[ $num01 -eq $num02 ]; echo $?\n\n# 判断不等于\n[ $num01 -ne $num02 ]; echo $?\n\n# 判断大于等于\n[ $num01 -ge $num02 ]; echo $?\n\n# 判断大于\n[ $num01 -gt $num02 ]; echo $?\n\n# 判断小于等于\n[ $num01 -le $num02 ]; echo $?\n\n# 判断小于\n[ $num01 -lt $num02 ]; echo $?\n\n# 结果是：1 0 1 1 0 0\n```\n\n\n\n\n\n### 5.3，文件测试\n\n`[ -d file ]`:判断是否目录 \n\n`[ -e file ]`: 判断是否存在\n\n`[ -f file ]`: 判断是否是常规文件\n\n`[ -L file ]`: 判断是否是连接\n\n`[ -r file ]`: 判断是否可读\n\n`[ -w file ]`: 判断是否可写\n\n`[ -x file]`: 判断是否可执行\n\n\n\n```shell\n#! /bin/bash\n\n# 文件系统的判断\n\nfile=log.txt\n\n# 是否是文件夹\n[ -d $file ]; echo $?\n# 是否存在\n[ -e $file ]; echo $?\n# 是否文件\n[ -f $file ]; echo $?\n# 是否可读\n[ -r $file ]; echo $?\n# 是否可写\n[ -w $file ]; echo $?\n# 是否可执行\n[ -x $file ]; echo $?\n\n# 结果是： 1 0 0 0 0 1\n```\n\n\n\n### 5.4, 多重条件\n\n`[ A -a B ]`: 与\n\n`[ A -o B]`: 或\n\n`[ !A ]` : 非,也就是取反\n\n```shell\n# /bin/bash\n\nstr01=ivanl001\nnum=10\n\n# 判断str01等于ivanl001而且num的值大于5\n[ $str01 == ivanl001 -a $num -gt 5 ]; echo $?\n\n# 判断str01等于ivanl002或者num的值大于20\n[ $str01 == ivanl002 -a $num -gt 20 ]; echo $?\n\n# 判断非，也即是取反\n[ ! $str01 == ivanl001 ]; echo $?\n\n# 在这里加上&&和||命令\n[ ! $str01 == ivanl001 ] && echo success || echo failed ; echo ok,all done!\n\n# 结果是： 0 1 1 failed ok,all done!\n```\n\n\n\n> 有一点需要注意的是：上面的是判断条件， 而&&或者||是命令\n\n`bash log.txt && echo success || echo failed ; echo program finished`"
+    },
+    {
+      "type": "markdown",
+      "data": "## 6, 流程控制语句"
+    },
+    {
+      "type": "markdown",
+      "data": "### 6.1, if语句\n\n```shell\n# /bin/bash\n\n# 单分支if语句\nread -p \"Please input your hostname:\" hostname\n\nif [ $hostname != root ]; then echo 'Sorry, you do not have permission to opearte this;'; else echo 'ok, you can go in now!';fi\n\nnum=1\nif [ $num -lt 10 ];\nthen echo 'current num is:' $num\n# 注意这里是赋值，赋值的时候等号左右两边不能有空格\nnum=`$num + 1`\nfi\n\nread -p \"Please input your age: \" age\nif [ $age -lt 20 ]; then echo 'you are too young';\nelif [ $age -lt 40 ]; then echo 'ok, perfect';\nelse echo 'you are too old!';\nfi\n```\n\n\n\n### 6.2，case语句\n\n```shell\n#/bin/bash\n\n# case语句的使用\ncase $1 in\nstart)\n        echo 'starting!'\n        service httpd start;\n        ;;\nstop)\n        echo 'stopping'\n        service httpd stop;\n        ;;\n*)\n        echo 'usage:{start|stop}';\nesac\n```\n\n\n\n### 6.3，for循环\n\n> for循环可以循环数字，字符数组，执行结果等，具体看下面代码\n\n```shell\n# --------------数字型循环-------------\n# 第一种for循环写法\nfor((i=0;i<10;i++));\ndo echo $i;\ndone\n\n# 第二种for循环,记住要有$\nfor i in $(seq 1 10);\ndo echo '第二种：' $i\ndone\n\n# 第三种for循环, 这里是中括号\nfor i in {1..10};\ndo echo '第三种:' $i\ndone\n\n# 第四种for循环,这个不太会，后面看\nawk 'BEGIN{for(i=1; i<=10; i++) print i}'\n\n\n# -----------------字符型循环----------------\n# 第一种字符循环:循环执行命令后的结果\nfor i in `ls`;\ndo echo $i is the file name;\ndone\n\n# 第二种循环输入的参数\nfor i in $*;\ndo echo $i is the input char;\ndone\n\n# 第三种循环给定的多个参数\nf1=ivanl001\nf2=ivanl002\nf3=ivanl003\nfor i in f1 f2 f3;\ndo echo $i is the param;\ndone\n\n# 第四种循环数组中的参数\nlist=\"ivanl001 is the king of world!\"\nfor i in $list;\ndo echo $i is the one of list;\ndone\n\n\n# ---------------路径查找-----------------\n# 第一种路径循环\nfor file in /home/master/*\ndo echo $file is the file of master;\ndone\n\n# 第二种路径循环\nfor file in $(ls *.sh);\ndo echo $file is the sh file;\ndone\n```\n\n\n\n### 6.4,  while循环\n\n```shell\n#/bin/bash\n\n# while循环求100内数字的和\ni=0\nsum=0\nwhile(($i<=100));\ndo sum=$(($sum+$i));i=$(($i+1));\ndone\n\necho 'sum='$sum\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 7, 自定义函数和脚本调试"
+    },
+    {
+      "type": "markdown",
+      "data": "### 7.1，自定义函数\n\n```shell\n#/bin/bash\n\n# 自定义函数\necho '自定义函数'\n\nfunction  start(){\n  echo 'starting...'\n  echo 'the param is:'$1\n  return 100\n}\n\nfunction stop(){\n  echo 'stopping...'\n  return 101\n}\n\nfunction restart(){\n  echo 'restarting...'\n  return 102\n}\n\nstart $1\n```\n\n\n\n### 7.2，脚本调试\n\n> bash -n errorTest.sh # 这里是不运行，直接调试代码语法\n\n> bash -x errorTest01.sh #这个是边运行，边打印你的代码\n\n```shell\n[master@master shell]$ bash -x errorTest01.sh\n+ read -p 'Please input your hostname:' hostname\nPlease input your hostname:zang\n+ '[' zang '!=' root ']'\n+ echo 'Sorry, you do not have permission to opearte this;'\nSorry, you do not have permission to opearte this;\n+ num=1\n+ '[' 1 -lt 10 ']'\n+ echo 'current num is:' 1\ncurrent num is: 1\n+ num=2\n+ read -p 'Please input your age: ' age\nPlease input your age:\n```\n\n> bash -v errorTest01.sh # 这里会打印出所有代码，包括判断语句中不执行的和注视\n\n```shell\n[master@master shell]$ bash -v errorTest01.sh\n# /bin/bash\n\n\n# 单分支if语句\nread -p \"Please input your hostname:\" hostname\nPlease input your hostname:zhang\n\nif [ $hostname != root ]; then echo 'Sorry, you do not have permission to opearte this;'; else echo 'ok, you can go in now!';fi\nSorry, you do not have permission to opearte this;\n\n\n# 下面需要注意的是：赋值的时候等号两边不能有空格\nnum=1\nif [ $num -lt 10 ];\nthen echo 'current num is:' $num\nnum=$(($num + 1))\nfi\ncurrent num is: 1\n\n\n\nread -p \"Please input your age: \" age\nPlease input your age: 99\nif [ $age -lt 20 ]; then echo 'you are too young';\nelif [ $age -lt 40 ]; then echo 'ok, perfect';\nelse echo 'you are too old!';\nfi\nyou are too old!\n```\n\n>  set -x errorTest01.sh #这个是只对部分代码进行调试，也即是代码中有set -x字样的那些代码"
+    },
+    {
+      "type": "markdown",
+      "data": "## 8，定时器"
+    },
+    {
+      "type": "markdown",
+      "data": "## 100，后台运行"
+    },
+    {
+      "type": "markdown",
+      "data": "> 第一种方式：&，就是在命令后面直接 &就可以了\n\n`./shell02.sh >> log.txt &`\n\n> 第二种方式， nohup\n\n`nohup ./shell02.sh >> log.txt`: 这个会占用命令行\n\n`nohup ./shell02.sh >> log.txt &`: 这个不占用命令行，但问题是我直接用第一种方式不就行了，干嘛用这个？？？"
+    },
+    {
+      "type": "markdown",
+      "data": "## 执行命令的操作"
+    },
+    {
+      "type": "markdown",
+      "data": "`bash log.txt && echo success || echo failed ; echo program finished`\n\n> 上面的命令， bash可以让那些没有执行权限的文件执行（指的是当前用户，用当前用户执行其他用户的文件，不代表一定可以执行成功），&&代表前面的命令执行成功后才会执行，||代表执行失败才会执行，;代表如论如何都会执行，这个好像跟try-catch-finally有点像，&&相当于try，|| 相当于catch，；相当于finally"
+    }
+  ]
+}

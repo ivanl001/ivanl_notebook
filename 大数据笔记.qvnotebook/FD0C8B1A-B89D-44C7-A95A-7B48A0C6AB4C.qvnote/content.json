@@ -1,0 +1,21 @@
+{
+  "title": "08-Flume-0107-sink连接source，hop跃点",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": ""
+    },
+    {
+      "type": "markdown",
+      "data": "*主要的意思是：从一个flume的agent:a1出来后，进入到另外一个agent:a2里面去，这种就需要设置a1的sink是arvo，a2的source是arvo*\n*a1:端口设置为9901，a2的端口设置成9902，需要先开a2，具体配置恶化操作如下：*"
+    },
+    {
+      "type": "markdown",
+      "data": "#### 1，修改配置文件， 重命名为flume-hop-conf.properties\n  ```shell\n  # -----------------首先先定义第一个agent：a1-----------------\n  \n  # 0, 首先指定三种组件：源,通道,槽\n  a1.sources = r1\n  a1.channels = c1\n  a1.sinks = k1\n  \n  \n  # 1, 定义source相关信息，绑定流入的数据， 并制定输出的方向\n  a1.sources.r1.type = netcat\n  a1.sources.r1.bind = localhost\n  a1.sources.r1.port = 9901\n  a1.sources.r1.channels = c1\n  \n  \n  # 2, 定义channel相关的信息, 这里不需要制定输出，而是让sink指定输入的\n  a1.channels.c1.type = memory\n  \n  \n  # 3, 定义sink相关的信息\n  a1.sinks.k1.channel = c1\n  \n  a1.sinks.k1.type = avro\n  a1.sinks.k1.hostname = localhost\n  a1.sinks.k1.port = 9902\n  \n  \n  # -----------------再定义第一个agent：a2-----------------\n  \n  # 0, 首先指定三种组件：源,通道,槽\n  a2.sources = r2\n  a2.channels = c2\n  a2.sinks = k2\n  \n  \n  # 1, 定义source相关信息，绑定流入的数据， 并制定输出的方向\n  a2.sources.r2.type = avro\n  a2.sources.r2.bind = localhost\n  a2.sources.r2.port = 9902\n  a2.sources.r2.channels = c2\n\n  \n  # 2, 定义channel相关的信息, 这里不需要制定输出，而是让sink指定输入的\n  a2.channels.c2.type = memory\n  \n  \n  # 3, 定义sink相关的信息\n  a2.sinks.k2.channel = c2\n  a2.sinks.k2.type = logger\n  ```\n  \n#### 2, 先启动a2\n  > flume-ng agent -n a2 -c conf -f /usr/local/flume/conf/myConf/flume-hop-conf.properties -Dflume.root.logger=INFO,console\n\n\n  \n#### 3, 再启动a1\n  > flume-ng agent -n a1 -c conf -f /usr/local/flume/conf/myConf/flume-hop-conf.properties -Dflume.root.logger=INFO,console\n  \n#### 4, ok了！"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

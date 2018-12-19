@@ -1,0 +1,21 @@
+{
+  "title": "13-Spark2.1-0808-socket简单实现",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1, socket之tcp实现"
+    },
+    {
+      "type": "markdown",
+      "data": "### 1.1, tcp的server\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-08 13:20\n# description : tcp-server\n#\n\nimport socket\n\n# 1, 创建socket对象，socket.SOCK_STREAM代表tcp协议\nsk = socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n\n# 2, 绑定端口，设置连接数\nsk.bind((\"127.0.0.1\", 8080))\n#  backlog等于5，表示内核已经接到了连接请求，但服务器还没有调用accept进行处理的连接个数最大为5\nsk.listen(5)\n\n\n# 3, 启动监听\nbuffer = 1024\nprint(\"-----启动监听------\")\nwhile True:\n    (client, addr) = sk.accept()\n    print(\"接收到连接，地址是:\" + str(addr))\n    # 这里要用接受到的那个client接受数据哈\n    data = client.recv(buffer)\n    # 上面的data是字节类型，我们这里转成字符串\n    dataStr = data.decode(\"utf-8\")\n    print(dataStr)\n\n```\n### 1.2, tcp的client\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-08 13:31\n# description : tcp-client\n# \n\nimport socket\n\n# 1, 创建socket对象，socket.SOCK_STREAM代表tcp协议\nsk = socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n\n# 2, 绑定端口，设置连接数\nsk.connect((\"127.0.0.1\", 8080))\n\n\n# 3, 启动监听\nsk.send(\"ivanl001 is the king of world! \".encode(\"utf-8\"))\nsk.close()\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2, udp实现"
+    },
+    {
+      "type": "markdown",
+      "data": "### 2.1, udp之receiver\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-08 13:47\n# description : udp\n# \n\nimport socket\n\n# 1, 创建socket对象，socket.SOCK_DGRAM代表udp协议\nreceiver = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)\n\n# 2, 绑定端口，设置连接数\nreceiver.bind((\"127.0.0.1\", 8080))\n\n# 3, 启动监听\nbuffer = 1024\nprint(\"-----启动监听------\")\nwhile True:\n    (data, addr) = receiver.recvfrom(buffer)\n    print(\"接收到连接，地址是:\" + str(addr))\n    dataStr = bytes.decode(data, \"utf-8\")\n    print(\"接收到udp数据:\" + dataStr)\n```\n### 2.2, udp之sender\n```python\n#\n# author      : ivanl001\n# creator     : 2018-12-08 13:51\n# description : \n# \n\nimport socket\n\n# 1, 创建socket对象，socket.SOCK_DGRAM代表udp协议\nsender = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)\n\n# 2, 绑定端口，设置连接数\nsender.bind((\"127.0.0.1\", 8081))\nprint(\"启动发送者-----------------------\")\n\n# 3, 启动监听\nbuffer = 1024\nprint(\"发送数据-----------------------\")\nsender.sendto(\"ivanl001 is the king of world!\".encode(\"utf-8\"), (\"127.0.0.1\", 8080))\nprint(\"发送数据完成-----------------------\")\n```"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "title": "02-Linux基础-0101-基本操作",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1，linux的一些基础命令："
+    },
+    {
+      "type": "markdown",
+      "data": "\n* cd  : change directory\n* cd -: 回到上一个目录\n* pwd : print working directory\n* ls  : list\n* ll  : list all\n* whoami: current username\n* man : manual\n* passwd: 修改密码\n* su  : switch user\n* sudo: super user do\n* \t[nano文本编辑器,命令行模式]\n\t* $>nano a.txt\t\t\t\t\t\t\t\t\t\t//打开nano编辑器，编辑a.txt文件\n\t* $>ctrl + o\t\t\t\t\t\t\t\t\t\t\t//保存文件,提示后直接回车\n\t* $>ctrl + x\t\t\t\t\t\t\t\t\t\t\t//退出文件\n\t* $>ctrl + k\t\t\t\t\t\t\t\t\t\t\t//cut 文本\n\t* $>ctrl + u\t\t\t\t\t\t\t\t\t\t\t//uncut 文本\n\t\n* wc ivanl001.txt    //分别显示行数/单词数/字节数 \n* wc -l ivanl001.txt //这个是只显示行数\n* wc -w ivanl001.txt //只显示单词数\n* wc -c ivanl001.txt //只显示字节数\n* wc -m ivanl001.txt //这个是显示字符数· \n\n* centOS 切换命令行模式\n\n  > Ctrl + alt + F1/F2/F3/F4/F5/F6\n  > F1是可是桌面，F2-F6是命令行窗口\n\n* centOS切换到窗口模式\n\n  > Ctril + alt + F1\n\n* 查看网络\n\n  > ifconfig //这个和window上： ipconfig /alli\n\n\n* />和>> \n\n  >/>代表写入，是覆盖模式， 比如 ifconfig > ifconfig.txt, 是指把ifconfig的内容覆盖写入到指定的txt中\n  >\n  >/>>代表写入，是追加模式，比如 ifconfig >> ifconfig.txt, 是指把ifconfig的内容追加写入到指定的txt中\n\n* echo写入字符到文本中\n\n  > 覆盖写入： echo ivanl001 > ivanl001.txt\n  >\n  > 追加写入： echo ivanl001 >> ivanl001.txt\n\n* nano命令的一些操作：\n\n  > Ctrl + o 写出，也就是保存\n  >\n  > Ctrl + x 退出\n\n* 不同权限用户命令前的符号是不同的\n\n  > root用户命令前提示符是一个#\n  >\n  > 普通用户命令前提示符是一个$\n\n* more命令\n\n  > 空格代表向下走一页\n  >\n  > -10 代表显示10行\n  >\n  > more -100 find.txt\n\n* head命令\n\n  > head -5 find.txt  //和more命令类似，默认是10行\n  >\n  > head -n 5 find.txt\n\n* 管道|， 代表把前面的输出作为后面输入的内容\n\n  > find . | more 这里的意思是find出来的内容太多，页面显示不全，所以用more来一页一页的查看\n\n* 对于linux中的命令，如果后面的参数是一个字母，一般用\"-\", 如果是多个字母，一般用\"--\"\n\n  > more --help\n\n* wc命令 word count\n\n  > wc -l ivanl001.txt 统计行数\n  >\n  > wc -c ivanl001.txt 统计字节\n  >\n  > wc -m ivanl001.txt 统计字符\n\n* hostname \n\n  > hostname 查看主机名，localhost.localdomain\n  >\n  > uname 查看unix名字\n  >\n  > uname -r 查看unix系统内核\n  >\n  > uname -a 查看所有的unix信息\n\n* file\n\n  > file ivanl001.txt //查看文件类型\n\n* gzip压缩命令，这个是压缩源文件\n\n  > gzip find.txt //压缩文件\n  >\n  > gzip -d find.txt.gz //解压缩被gzip压缩过的文件\n  >\n  >  gunzip find.txt.gz //同上\n\n* tar和gz\n\n  > tar -zcvf find.txt.tar.gz find.txt find2.txt //归档加压缩,如果有多个文件，直接放在后面即可\n  >\n  > tar -zxvf find.txt.tar.gz //解档并解压缩\n\n* xargs \n\n  > find . | xargs //把查询出来的内容的多行变成一行， 并用空格分割\n  >\n  > // 比如说要把搜索出来的东西进行复制或者执行其他命令，可以用如下：\n  >\n   \n  > find . | grep .txt | cp \\`xargs\\` ./allText \n  \n  > \\#find 和ls是一样的，只不过find是换行的，可以用xargs处理一下\n  \n  > cp \\`find . | xargs\\` /home/ivanl001\n  \n  > cp \\`ls\\` /home/ivanl001/ \n  \n  > \\#这个是把ls出来的所有文件或者文件夹都拷贝到home/ivanl001目录下\n  > find显示的是绝对路径，ls显示相对路径\n\n* `` 命令嵌套\n\n  > \\`\\`是相当于把一个命令的结果改变成字符串， 以让另外一个命令使用这个命令的结果\n  >\n  > echo \\`pwd\\` >> pwd.txt\n\n* ln：创建链接\n\n  > ln ivanl001.txt ivanl001.link //这个是硬链，可以理解为实时备份，链接和源文件大小一样，两个文件完全同步，只有删除的时候只删除直接被处理的那个文件，目录不能使用硬链\n  >\n  > //一般情况下用软链比较多，方式如下：\n  >\n  > ln -s ivanl001.txt ivanl001-softLink\n  \n  > ln -s /usr/bin bin\n  > 如果是在上面的那个bin链接目录下，pwd打印的是是软链的地址，而不是/usr/bin的地址，如果想要打印后者， 可用-P , 物理地址\n  > pwd -P\n  > cd -P bin //直接通过软链进入物理那个文件夹，而不是软链文件夹内\n\n* sudo权限配置\n\n  > 如果想要使用sudo的话，centos里面是需要给指定用户进行配置的，比如说现在要想让master使用sudo进行某些操作，那么需要在/etc/sudoer文件中增加如下一行\n  >\n  > master  ALL=(ALL)  ALL  //注意：master需要改成你想要的用户名\n  \n* export导出环境变量，session中有效"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2，linux权限问题"
+    },
+    {
+      "type": "markdown",
+      "data": "* which\n\n  > which cd //查询某个命令所在的目录\n\n### 2.1， 相关目录\n\n```\n/bin    系统相关的二进制可执行文件，比如说cat，more等\n/sbin   系统相关的比较重要的二进制可执行文件，比如说创建用户等\n\n*上面两个其实就是下面两个的链接，bin指向/usr/bin, sbin指向/usr/sbin*\n\n/usr/bin\n/usr/sbin   这两个是厂商相关的命令\n\n/usr/local/bin\n/usr/local/sbin   这两个是用户相关的命令\n\n```\n\n### 2.2，文件类型\n\n```\n- 文件类型\nd 文件夹类型\nl 链接类型\nb 块文件，比如说U盘，光盘等\nc 字符文件\n```\n\n### 2.3，linux的权限\n\n```\nu 当前用户，也就是文件的owner\ng owner所在的组\no others，其他人\na all, 可以通过a来同时操作上面三个用户的权限\nr 4 \nw 2\ne 1\n```\n\n### 2.4, 更改文件权限\n\n> chmod u-w ifconfig.txt //取消拥有者的写入权限\n>\n> chmod 777 ifconfig.txt //给所有人赋予所有的操作权限\n>\n> chmod u+x test.sh      //赋给当前用户执行权利\n\n> chmod a+x test.sh      //这个是指同时给all，也就是所有用户添加执行权限\n\n* 对于root用户，就算对于文件夹没有任何权限，貌似也可以进行相关操作\n* 对于除了root之外的其他用户而言：\n* 读权限：\n    * 文件：读取文件内容\n    * 文件夹：ls出文件夹下有哪些文件，就算没有读权限，也可以cd进去，因为cd是执行权限，但是看不到里面的东西\n* 执行权限：\n    * 文件：就是执行咯\n    * 文件夹：cd\n* 写权限：\n    * 文件：就是写入了\n    * 文件夹：touch或者mkdir吧\n\n\n\n### 2.5,  更改拥有者\n\n> *更改拥有者应该只能在root用户下更改*\n>\n> su root //先切换到root用户下\n>\n> chown root:root ivanl001.txt\n>\n> //如果需要递归某个文件夹下的所有文件\n>\n> chown -R root:root /home/ivanl001/temp \n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 3, 网络连接相关"
+    },
+    {
+      "type": "markdown",
+      "data": "### 3.1, 虚拟机的三种网络连接方式\n\n> NAT模式：network address transform, 这种方式是VM默认的网络连接方式，相当于vm建立一个虚拟网卡，然后通过虚拟网卡进行网络访问，这种模式的问题在于，由于是虚拟网卡，所以客户机可以访问主机和同网络内的其他机器，但是宿主机或者说任何的物理主机都不能访问到NAT下的该客户机\n>\n> 桥接模式：这个相当于是完全按照物理主机的方式进行访问，所以物理机可以访问客户机，客户机也能访问物理机，但是在mac下客户机貌似不能联网，其他的暂时还没什么问题\n>\n> only host模式：这种模式是NAT的安全模式，也就是说客户机只能访问本物理主机，而不能访问同网络下的其他物理主机，应该也不能联网，不关心这个，先不管\n\n### 3.2，linux网络配置\n\n> 配置静态ip：\n>\n> su root\n>\n>  cd /etc/sysconfig/network-scripts/\n>\n> vim ifcfg-ens33 //这里需要修改的是你的网卡的名称，不一定是叫做这个名字\n>\n> // 更改如下几个内容，没有的条目加上去, 网址，网管和子网掩码需要根据自己的具体网络设定\n>\n> BOOTPROTO=\"static\"\n>\n> IPADDR=\"223.167.197.120\"\n> NETMASK=\"255.255.255.0\"\n> GATEWAY=\"223.168.197.255\"\n>\n> //保存后重启网络\n>\n> service network restart"
+    },
+    {
+      "type": "markdown",
+      "data": "## 4，service服务相关"
+    },
+    {
+      "type": "markdown",
+      "data": "### 4.1，查看状态\n\n> service serviceName status\n\n### 4.2, 启动服务\n\n> service serviceName start\n\n### .3, 关闭服务\n\n> service serviceName stop\n\n### 4.4 , 重启服务\n\n> service serviceName restart"
+    },
+    {
+      "type": "markdown",
+      "data": "## 5, mount 挂载相关"
+    },
+    {
+      "type": "markdown",
+      "data": "`挂载设备`\n\n> 首先插入光盘之后，在/dev/目录下有一个cdrom的链接文件指向src0，src0则是一个字节文件\n>\n> 这个cdrom或者说src0就是光盘文件，但是因为没有挂载所以是看不到文件的，挂载的过程如下：\n>\n> 在/mnt/目录下通过root用户创建一个目录，可以叫做cdrom，然后通过如下命令进行挂载：\n>\n> mount /dev/cdrom /mnt/cdrom\n>\n> 然后进入/mnt/cdrom/ 目录下即可看到光盘中内容\n\n`卸载设备`\n\n> 如果在/mnt/cdrom/下，需要先cd到其他目录中去，否则会有设备繁忙的提示\n>\n> umount /mnt/cdrom/"
+    },
+    {
+      "type": "markdown",
+      "data": "## 6, 其他"
+    },
+    {
+      "type": "markdown",
+      "data": "\n### 6.1, 后台运行，进程等\n\n> 放在后台运行某个程序, 在命令后面加上符号&\n\n`less ivanl001 &`\n\n> 查看后台的程序\n\n`jobs`\n\n> 后台程序切回到前台, %后面跟的是这个后台程序的编号\n\n`fg %1`\n\n> 前台作业放到后台执行\n\n`ctrl+z`\n\n`bg %1`\n\n> 杀死作业\n\n`kill %1`\n\n\n\n### 6.2, 进程查看\n\n`ps`:process show\n\n> 查看所有进程\n\n`ps -ef | grep gnom`\n\n`top`: 这个是查看实时更新的进程信息\n\n> cut命令可以剪切过长的行, 如下，只显示第一列到第50列，后面的直接被剪掉了 \n`ps -ef | cut -c 1-50 | more `\n\n\n\n### 6.3，磁盘使用情况，fdisk\n\n`/dev/sda` : 这个是磁盘\n\n`/dev/sda1,/dev/sda2,/dev/sda3 `: 这个是磁盘分区\n\n`fdisk -l /dev/sda`: 查看磁盘分区情况\n\n`df -ah`: df是disk free，加上-ah的话可以按照人性化的单位显示\n\n`df -ah .`: 查看当前的分区的使用情况\n\n`df -ah /home`: 查看home目录 的分区的使用情况\n\n\n\n### 6.4， dirname和basename\n\n`dirname /ivanl001/a/b/c`:是给定文件的上一级目录，如果输入是/ivanl001/a/b/c,输出是/ivanl001/a/b\n\n`basename /ivanl001/a/b/c` ：当前目录如果输入是/ivanl001/a/b/c,输出是c\n\n\n\n### 6.5， hostname相关\n\n`sudo hostname ivanl001`: 临时性的更改主机名，退出后重新进入的时候生效，重启后失效\n\n`更改文件/etc/hostname`:永久性的更改主机名\n\n\n\n### 6.6，创建用户\n\n`useradd guest`: 创建用户\n\n`passwd guest`: 用户创建成功后修改这个用户的密码\n\n\n\n### 6.7，配置文件即时生效\n\n`source /etc/profile`:后面跟的路径是你需要重新生效的路径\n\n\n\n### 6.8，卸载centos7自带的默认java版本\n\n```shell\n[root@master ~]# rpm -qa | grep java\n\n[root@master ~]# rpm -e --nodeps java-1.8.0-openjdk-headless-1.8.0.101-3.b13.el7_2.x86_64\n[root@master ~]# rpm -e --nodeps java-1.8.0-openjdk-1.8.0.101-3.b13.el7_2.x86_64\n[root@master ~]# rpm -e --nodeps java-1.7.0-openjdk-headless-1.7.0.111-2.6.7.2.el7_2.x86_64\n[root@master ~]# rpm -e --nodeps java-1.7.0-openjdk-1.7.0.111-2.6.7.2.el7_2.x86_64\n```\n\n\n\n###6.9, 更改系统语言，这个更改的是系统显示的语言\n\n> vim /etc/locale.conf\n>\n> //把原先的LANG=en_US.UTF-8改为LANG=zh_CN.UTF-8 也就是改成中文显示语言\n\n\n\n### 7.0，用客户端ssh centos7时候警告cannot change locale (UTF-8)：\n\n*如果你用locale -a的时候会发现，其实编码前面都会加上类似en_US UTF-8或者zh_CN UTF-8的国家简称，是没有UTF-8的，所以只需要指定一下就可以了，如下：*\n\n`消除这个警告只需要在/etc/locale.conf中新增加如下一行：LC_CTYPE=\"en_US.UTF-8\"`\n\n* 如果中文显示还是有问题，试一下下面安装：\n\n  `yum install glibc-common`\n\n\n### 7.1, ssh免密登陆\n\n* 01, 生成rsa公钥和私钥，命令：ssh-keygen，默认生成目录是当前用户下的.ssh目录\n* 02, A要无密登陆B服务器，则：\n    * 在B的.ssh目录下新建一个authorized_keys文件\n    * 将A的.ssh目录下的公钥文件内容追加到B的authorized_keys中即可\n    * 这样就可以在A服务器上：ssh B了\n\n\n\n\n\n### 7.2，软链接进入实际的物理地址：\n\n> cd -P desktop/\n>\n> pwd -P \n\n\n\n### 7.3, 环境变量相关\n\n> path=/home/master/Desktop\n>\n> * echo $path/test01.txt //有一部分特殊符号可以直接放在后面可以识别\n> * echo ${thepath}/test01.txt //但是保险还是用{}把环境变量扩起来比较实在\n> * echo \"$thepath\"/test01.txt //如果用双引号，需要把\\$符号也阔进去\n> * $zhangbuer$\n> * export name=ivanl001 //导出环境变量，好像只在当前session中有效\n> * export name=\\${var01:-${var02}} //导出name为var01的值，如果var01没有值，则导出var02的值，三元运算符\n> * echo \\`pwd\\` //执行后面的pwd命令，然后在把结果echo出来\n> * if: \n>   * if COMMANDS; then COMMANDS; [ elif COMMANDS; then COMMANDS; ]... [ else COMMANDS; ] fi\n\n### 7.4, 更换yum的仓库为阿里源\n\n> 仓库的配置文件的位置：/etc/yum.repos.d/*.repo\n>\n> 切换到上述的/etc/yum.repos.d/目录下，执行下面的命令：\n\n`curl -o /etc/yum.repos.d/aliyun.repo http://mirrors.aliyun.com/repo/Centos-7.repo`\n\n\n\n### 7.5，安装增强工具kernel headers错误解决\n\n`yum install \"kernel-devel-uname-r == $(uname -r)\"`\n\n### 7.6, 在linux的提示中，显示整个路径，而不只是上个路径：\n* 在/etc/profile中增加如下一样代码\n> export PS1='[\\u@\\h \\`pwd`]\\$' \n> 这个是意思是前面是用户名@主机名 后面直接显示路径，最后用个$结尾\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "title": "08-Flume-0104-flumeSink",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1, HDFS Sink\n*我们这里用nc做源来测试*\n\n* 01,配置文件，配置文件改名为flume-netcat-hdfs-conf.properties\n\n  * 有一点需要注意一下：配置一下hdfs.useLocalTimeStamp为true，要不然会报错什么时间戳是空什么的错误哈\n  \n  ```shell\n  # 0, 首先指定三种组件：源,通道,槽\n  agent.sources = r1\n  agent.channels = c1\n  agent.sinks = k1\n  \n  # 1, 定义source相关信息，绑定流入的数据， 并制定输出的方向\n  agent.sources.r1.type = netcat\n  agent.sources.r1.bind = localhost\n  agent.sources.r1.port = 8888\n  agent.sources.r1.channels = c1\n  \n  # 2, 定义channel相关的信息, 这里不需要制定输出，而是让sink指定输入的\n  agent.channels.c1.type = memory\n  \n  # 3, 定义sink相关的信息\n  agent.sinks.k1.channel = c1 \n  agent.sinks.k1.type = hdfs\n  agent.sinks.k1.hdfs.path = /flume/events/%y-%m-%d/%H%M/%S\n  agent.sinks.k1.hdfs.filePrefix = events-\n  # 这里是每隔十分钟创建一个文件夹\n  agent.sinks.k1.hdfs.round = true\n  agent.sinks.k1.hdfs.roundValue = 10\n  agent.sinks.k1.hdfs.roundUnit = minute\n  # 每个5seconds或者100个字节进行滚动一个文件，rollCount：Number of events\n  agent.sinks.k1.hdfs.rollInterval = 60\n  agent.sinks.k1.hdfs.rollSize = 100\n  agent.sinks.k1.hdfs.rollCount = 100 \n  agent.sinks.k1.hdfs.useLocalTimeStamp = true\n  ```\n* 02,启动\n  > flume-ng agent -n agent -c conf -f flume-netcat-hdfs-conf.properties\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2, HBase Sink\n\n* 01,配置文件，配置文件改名为flume-netcat-hbase-conf.properties\n  ```shell\n  # 0, 首先指定三种组件：源,通道,槽\n  agent.sources = r1\n  agent.channels = c1\n  agent.sinks = k1\n  \n  # 1, 定义source相关信息，绑定流入的数据， 并制定输出的方向\n  agent.sources.r1.type = netcat\n  agent.sources.r1.bind = localhost\n  agent.sources.r1.port = 8888\n  agent.sources.r1.channels = c1\n  \n  # 2, 定义channel相关的信息, 这里不需要制定输出，而是让sink指定输入的\n  agent.channels.c1.type = memory\n  \n  # 3, 定义sink相关的信息\n  agent.sinks.k1.channel = c1  \n  agent.sinks.k1.type = hbase\n  agent.sinks.k1.table = flume:t1\n  agent.sinks.k1.columnFamily = f1\n  ```\n  \n* 02,启动\n  > flume-ng agent -n agent -c conf -f flume-netcat-hbase-conf.properties\n\n* 报错：18/11/14 12:42:15 ERROR hbase.HBaseSink: Invalid HBase version:2.1.0， 很明显是版本太高的问题， 我这里就不再深究，基本这么配置启动就可以正常的往hbase写入数据了\n\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 3, Hive Sink 看文档吧"
+    }
+  ]
+}

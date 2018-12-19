@@ -1,0 +1,29 @@
+{
+  "title": "13-Spark-0106-spark提交作业以及分布式部署和start-all.sh脚本分析",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## spark作业提交,如果想要提交分布式作业，看##3\n  > spark-submit --master local --name IMWordCount  --class im.ivanl001.bigData.Spark.A01_WordCount.WordCountApp_scala Spark_Test.jar /root/ivanl001/test/zhang.txt"
+    },
+    {
+      "type": "markdown",
+      "data": "## Spark集群的部署\n"
+    },
+    {
+      "type": "markdown",
+      "data": "### 1，local本地模式(standalone模式)\n*安装好之后默认是本地模式，本地启动也可以不加--master参数*\n> spark-shell --master local"
+    },
+    {
+      "type": "markdown",
+      "data": "### 2，standalone模式，这个属于独立模式，spark不依赖其他(如yarn)单独运行集群\n\n* 01， 修改slaves.template文件，重命名为slaves，并添加想要添加的slave节点\n  ```xml\n  slave01\n  slave02\n  slave03\n  ```\n  \n* 02, 启动spark,因为这个start-all.sh和hadoop的会有冲突，所以最好指定具体的路径开启\n  > /usr/local/spark-2.3.1-bin-hadoop2.7/sbin/start-all.sh \n\n\n* 03，如果启动时候报错：JAVA_HOME not set之类的，在/sbin/spark-config.sh文件最后添加一句，如下:\n  > export JAVA_HOME=/usr/local/jdk\n\n* 04，重新启动\n  > /usr/local/spark-2.3.1-bin-hadoop2.7/sbin/start-all.sh \n\n* 05, 检查是否启动正常\n  *页面上会有如下信息：Spark Master at spark://master:7077，提交分布式作业的时候需要用到spark://master:7077*\n  > http://master:8080/"
+    },
+    {
+      "type": "markdown",
+      "data": "### 3，提交作业到分布式spark上\n*注意：代码里要指定是集群模式才行哦，至少不能指定成本地模式哈*\n\n* 01，启动hadoop集群(至少也要开启hdfs)\n  > start-dfs.sh\n\n* 02，选取hdfs上的文件\n  *比如说这个文件/user/root/test/zhang.txt*\n\n* 03，spark-submit提交，具体如下：\n  > spark-submit --master spark://master:7077 --name IMWordCount  --class im.ivanl001.bigData.Spark.A01_WordCount.WordCountApp_scala Spark_Test.jar hdfs://master01:8020/user/root/test/zhang.txt\n\n* 04，注意：在代码中要指定集群模式哈，如果重新修改了scala代码，重新打包前最好重新编译后再打包"
+    },
+    {
+      "type": "markdown",
+      "data": "### 4，start-all.sh脚本分析\n* 01，脚本主要内容如下，比较简单，这里看看\n  ```shell\n  # Load the Spark configuration\n  . \"${SPARK_HOME}/sbin/spark-config.sh\"\n  \n  # Start Master\n  \"${SPARK_HOME}/sbin\"/start-master.sh\n  \n  # Start Workers\n  \"${SPARK_HOME}/sbin\"/start-slaves.sh\n  ```\n  \n* 02，接下来看一下start-master.sh的主要内容\n*差不多就是这个：spark-daemon.sh start org.apache.spark.deploy.master.Master --host --port --webui-port ...*\n\n  ```shell\n  # Starts the master on the machine this script is executed on.\n  # 先是判断是否需要加载帮助文档啥的\n  . \"${SPARK_HOME}/sbin/spark-config.sh\"\n  . \"${SPARK_HOME}/bin/load-spark-env.sh\"\n  \n  # 判断端口，主机名，ui端口等等\n  if [ \"$SPARK_MASTER_PORT\" = \"\" ]; then\n    SPARK_MASTER_PORT=7077\n  fi\n  \n  if [ \"$SPARK_MASTER_HOST\" = \"\" ]; then\n    case `uname` in\n        (SunOS)\n            SPARK_MASTER_HOST=\"`/usr/sbin/check-hostname | awk '{print $NF}'`\"\n            ;;\n        (*)\n            SPARK_MASTER_HOST=\"`hostname -f`\"\n            ;;\n    esac\n  fi\n  \n  if [ \"$SPARK_MASTER_WEBUI_PORT\" = \"\" ]; then\n    SPARK_MASTER_WEBUI_PORT=8080\n  fi\n  \n  CLASS=\"org.apache.spark.deploy.master.Master\"\n  \n  # 根据参数用spark-daemon.sh脚本启动Master这个类，大概就是这样：spark-daemon.sh start org.apache.spark.deploy.master.Master --host --port --webui-port ...\n  \n  \"${SPARK_HOME}/sbin\"/spark-daemon.sh start $CLASS 1 \\\n    --host $SPARK_MASTER_HOST --port $SPARK_MASTER_PORT --webui-port $SPARK_MASTER_WEBUI_PORT \\\n    $ORIGINAL_ARGS\n  ```\n  \n* 03，接下来看一下start-slaves.sh的主要内容\n\n  ```shell\n  # Starts a slave instance on each machine specified in the conf/slaves file.\n  . \"${SPARK_HOME}/sbin/spark-config.sh\"\n  . \"${SPARK_HOME}/bin/load-spark-env.sh\"\n  \n  # Find the port number for the master\n  if [ \"$SPARK_MASTER_PORT\" = \"\" ]; then\n    SPARK_MASTER_PORT=7077\n  fi\n  \n  if [ \"$SPARK_MASTER_HOST\" = \"\" ]; then\n    case `uname` in\n        (SunOS)\n            SPARK_MASTER_HOST=\"`/usr/sbin/check-hostname | awk '{print $NF}'`\"\n            ;;\n        (*)\n            SPARK_MASTER_HOST=\"`hostname -f`\"\n            ;;\n    esac\n  fi\n  \n  # Launch the slaves\n  # 通过调用slaves.sh循环conf/slaves文件，然后通过start-slave.sh启动每个slave节点\n  \"${SPARK_HOME}/sbin/slaves.sh\" cd \"${SPARK_HOME}\" \\; \"${SPARK_HOME}/sbin/start-slave.sh\" \"spark://$SPARK_MASTER_HOST:$SPARK_MASTER_PORT\"\n  \n  ```\n\n* 04，start-slaves.sh使用了slaves.sh脚本，那再看看slaves.sh的主要内容\n  ```shell\n  \n  # 这里进行for循环进行slave文件的每个slave\n  \n  for slave in `echo \"$HOSTLIST\"|sed  \"s/#.*$//;/^$/d\"`; do\n    if [ -n \"${SPARK_SSH_FOREGROUND}\" ]; then\n      ssh $SPARK_SSH_OPTS \"$slave\" $\"${@// /\\\\ }\" \\\n        2>&1 | sed \"s/^/$slave: /\"\n    else\n      ssh $SPARK_SSH_OPTS \"$slave\" $\"${@// /\\\\ }\" \\\n        2>&1 | sed \"s/^/$slave: /\" &\n    fi\n    if [ \"$SPARK_SLAVE_SLEEP\" != \"\" ]; then\n      sleep $SPARK_SLAVE_SLEEP\n    fi\n  done\n  ```\n\n* 05，start-slave.sh\n\n  ```shell\n  \n  . \"${SPARK_HOME}/sbin/spark-config.sh\"\n  \n  . \"${SPARK_HOME}/bin/load-spark-env.sh\"\n  \n  # First argument should be the master; we need to store it aside because we may\n  # need to insert arguments between it and the other arguments\n  MASTER=$1\n  shift\n  \n  # Determine desired worker port\n  if [ \"$SPARK_WORKER_WEBUI_PORT\" = \"\" ]; then\n    SPARK_WORKER_WEBUI_PORT=8081\n  fi\n  \n  # Start up the appropriate number of workers on this machine.\n  # quick local function to start a worker\n  function start_instance {\n    WORKER_NUM=$1\n    shift\n  \n    if [ \"$SPARK_WORKER_PORT\" = \"\" ]; then\n      PORT_FLAG=\n      PORT_NUM=\n    else\n      PORT_FLAG=\"--port\"\n      PORT_NUM=$(( $SPARK_WORKER_PORT + $WORKER_NUM - 1 ))\n    fi\n    WEBUI_PORT=$(( $SPARK_WORKER_WEBUI_PORT + $WORKER_NUM - 1 ))\n  \n    \"${SPARK_HOME}/sbin\"/spark-daemon.sh start $CLASS $WORKER_NUM \\\n       --webui-port \"$WEBUI_PORT\" $PORT_FLAG $PORT_NUM $MASTER \"$@\"\n  }\n  \n  if [ \"$SPARK_WORKER_INSTANCES\" = \"\" ]; then\n    start_instance 1 \"$@\"\n  else\n    for ((i=0; i<$SPARK_WORKER_INSTANCES; i++)); do\n      start_instance $(( 1 + $i )) \"$@\"\n    done\n  fi\n  ```"
+    }
+  ]
+}
