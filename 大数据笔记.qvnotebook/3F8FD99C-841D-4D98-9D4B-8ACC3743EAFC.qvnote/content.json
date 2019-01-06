@@ -1,0 +1,29 @@
+{
+  "title": "03-Hadoop-0804-DBInputFormat数据库输入格式 ",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "*这个输入方式主要是可以直接用来连接数据库进行数据处理。但是感觉用处不大吧*"
+    },
+    {
+      "type": "markdown",
+      "data": "## 1, App\n*这里可以从数据库输入，也可以一并输出到数据库中，见代码中注释*\n```java\npackage im.ivanl001.bigData.Hadoop.A15_MR_database;\n\n\nimport im.ivanl001.bigData.model.IMWCDBWritable;\nimport org.apache.hadoop.conf.Configuration;\nimport org.apache.hadoop.fs.FileSystem;\nimport org.apache.hadoop.fs.Path;\nimport org.apache.hadoop.io.IntWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Job;\nimport org.apache.hadoop.mapreduce.lib.db.DBConfiguration;\nimport org.apache.hadoop.mapreduce.lib.db.DBInputFormat;\nimport org.apache.hadoop.mapreduce.lib.db.DBOutputFormat;\nimport org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;\n\nimport java.io.IOException;\n\n/**\n * #author      : ivanl001\n * #creator     : 2018-10-30 16:29\n * #description :\n **/\npublic class IMDBApp {\n\n    public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {\n\n\n        Path outPath = new Path(\"/Users/ivanl001/Desktop/bigData/output012\");\n\n\n        //0, 准备配置文件\n        Configuration configuration = new Configuration();\n\n        //这里因为文件存在，总是需要删除，麻烦，所以直接程序自动删除\n        FileSystem.get(configuration).delete(outPath);\n\n\n        //1, 创建作业，并设置基本内容\n        Job job = Job.getInstance(configuration);\n        job.setJobName(\"databaseJob\");\n        job.setJarByClass(IMDBApp.class);\n\n\n        //2, 设置作业输入并配置数据库信息\n        job.setInputFormatClass(DBInputFormat.class);\n\n        //2.1, 配置数据库的相关配置\n        String driverClass = \"com.mysql.jdbc.Driver\";\n        String url = \"jdbc:mysql://localhost:3306/test\";\n        String username = \"root\";\n        String password = \"ivanl48265\";\n        //这里需要指定config，就是要把设置信息配置到config里面去\n        //注意：这里的config不能直接设置成上面创建的那个，而需要从job中获取\n        DBConfiguration.configureDB(job.getConfiguration(), driverClass, url, username, password);\n        DBInputFormat.setInput(job, IMWCDBWritable.class, \"select id,words from tb_wc\", \"select count(*) from tb_wc\");\n\n\n        //可以通过这种方式直接往数据库中写入，不过我这里为了简便，也就没有输出出去，直接输出文本了，请看下面步骤5\n        //DBOutputFormat.setOutput(job,\"stats\",\"word\",\"c\");\n\n\n        //3, 设置mapper\n        job.setMapperClass(IMDBMapper.class);\n        job.setMapOutputKeyClass(Text.class);\n        job.setMapOutputValueClass(IntWritable.class);\n\n        //4，设置reducer\n        job.setReducerClass(IMDBReducer.class);\n        job.setNumReduceTasks(2);\n        job.setOutputKeyClass(Text.class);\n        job.setOutputValueClass(IntWritable.class);\n\n        //5, 设置输出\n        FileOutputFormat.setOutputPath(job, outPath);\n\n        //6,提交，开始处理\n        job.waitForCompletion(false);\n\n    }\n}\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2, Mapper\n\n```java\npackage im.ivanl001.bigData.Hadoop.A15_MR_database;\n\n\nimport im.ivanl001.bigData.model.IMWCDBWritable;\nimport org.apache.hadoop.io.IntWritable;\nimport org.apache.hadoop.io.LongWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Mapper;\n\nimport java.io.IOException;\n\n/**\n * #author      : ivanl001\n * #creator     : 2018-10-30 16:20\n * #description :\n **/\npublic class IMDBMapper extends Mapper<LongWritable, IMWCDBWritable, Text, IntWritable> {\n\n    @Override\n    protected void map(LongWritable key, IMWCDBWritable value, Context context) throws IOException, InterruptedException {\n\n        String str = value.getWords();\n        System.out.println(\"key:\" + key + \", value:\" + str);\n\n        String[] splits = str.split(\" \");\n\n        Text text = new Text();\n        IntWritable count = new IntWritable();\n\n        for (String word : splits) {\n            text.set(word);\n            count.set(1);\n\n            context.write(text, count);\n        }\n    }\n}\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 3, Reducer\n\n```java\npackage im.ivanl001.bigData.Hadoop.A15_MR_database;\n\nimport org.apache.hadoop.io.IntWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Reducer;\n\nimport java.io.IOException;\n\n/**\n * #author      : ivanl001\n * #creator     : 2018-10-30 16:27\n * #description :\n **/\npublic class IMDBReducer extends Reducer<Text, IntWritable, Text, IntWritable> {\n\n    @Override\n    protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {\n        int count = 0;\n        for (IntWritable once : values) {\n            count += 1;\n        }\n        context.write(key, new IntWritable(count));\n    }\n}\n```"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

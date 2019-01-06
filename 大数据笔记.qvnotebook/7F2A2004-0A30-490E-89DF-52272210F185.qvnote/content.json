@@ -7,7 +7,7 @@
     },
     {
       "type": "markdown",
-      "data": "## 2, 宽窄依赖等\n\n```scala\nDependency:依赖\n-------------\n\tNarrowDependency:\t子RDD的每个分区依赖于父RDD的少量分区。\n\t\t |\n\t\t/ \\\n\t\t---\n\t\t |----\tOneToOneDependency\t\t//父子RDD之间的分区存在一对一关系。\n\t\t |----\tRangeDependency\t\t\t//父RDD的一个分区范围和子RDD存在一对一关系。\n\t\t |----\tOneToOneDependency\t\t//父子RDD之间的分区存在一对一关系。\n\n\tShuffleDependency\t\t\t\t\t//依赖，在shuffle阶段输出时的一种依赖。\n\t\n\tPruneDependency\t\t\t\t\t\t//在PartitionPruningRDD和其父RDD之间的依赖\n\t\t\t\t\t\t\t\t\t\t//子RDD包含了父RDD的分区子集。\n```"
+      "data": "## 2, 宽窄依赖等\n\n* 解释一下：\n\n* NarrowDependency就是那种一对一的依赖关系，比如说我rdd01通过炸裂之后形成一个rdd11,rdd01和rdd11是一一对应的。\n\n* ShuffleDependency则不一样，它是rdd01，rdd02都有可能会进入到rdd11的。\n\n* PruneDependency和上面两种都不一样，rdd11中如果只包含rdd01的一部分，则是PruneDependency\n\n```scala\nDependency:依赖\n-------------\n\tNarrowDependency:\t子RDD的每个分区依赖于父RDD的少量分区。\n\t\t |\n\t\t/ \\\n\t\t---\n\t\t |----\tOneToOneDependency\t\t//父子RDD之间的分区存在一对一关系。\n\t\t |----\tRangeDependency\t\t\t//父RDD的一个分区范围和子RDD存在一对一关系。\n\n\tShuffleDependency\t\t\t\t\t//依赖，在shuffle阶段输出时的一种依赖。\n\t\n\tPruneDependency\t\t\t\t\t\t//在PartitionPruningRDD和其父RDD之间的依赖\n\t\t\t\t\t\t\t\t\t\t//子RDD包含了父RDD的分区子集。\n```"
     },
     {
       "type": "markdown",

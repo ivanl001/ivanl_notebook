@@ -1,0 +1,29 @@
+{
+  "title": "03-Hadoop-0502-hdfs写入过程分析和secondary namenode的作用",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "内容过于多，源码已经看过，但是不好总结，所以先挖个坑，有空再来看\nHadoop第05天-02-hdfs写入剖析\nHadoop第05天-02-hdfs写入剖析2\n\n* \n\n* ![01-hdfs的写入过程.jpg](quiver-image-url/95C38AB9DB716F1C8446AE508F4101A9.jpg =2932x2740)"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    },
+    {
+      "type": "markdown",
+      "data": "* ![IMAGE](quiver-image-url/89D2BF527604478ED9402EBA12E9D4F9.jpg =1081x437)"
+    },
+    {
+      "type": "markdown",
+      "data": "## 1, hdfs写入过程分析\n\n```java\n//这个也就是写入\n@Test\npublic void Hadoop_05_fs_put(){\n\n    Configuration configuration = new Configuration();\n    URI uri = URI.create(\"hdfs://master:8020\");\n\n    Path path = new Path(\"/user/root/zhang/wahaha.txt\");\n\n    try {\n        FileSystem fs = FileSystem.get(uri, configuration);\n\n        //fs.copyFromLocalFile(new Path(\"\"), path);\n        FSDataOutputStream fsDataOutputStream = fs.create(path);\n        fsDataOutputStream.write(\"ivanl0000 is the king of world!\".getBytes());\n\n        fsDataOutputStream.close();\n\n    } catch (IOException e) {\n        e.printStackTrace();\n    }\n}\n```\n\n* 01, FileSystem fs = FileSystem.get(uri, configuration);\n  * 这里根据配置文件configuration来得到FileSystem对象\n  * 确切的说是FileSystem的子类，\n  * 我们一般用到的有DistributedFileSystem和LocalFileSystem\n\n* 02, FSDataOutputStream fsDataOutputStream = fs.create(path);\n\n* 03, fsDataOutputStream.write(\"ivanl0000 is the king of world!\".getBytes());\n\n\n\n* 03, 进入FSOutputSummer的write方法\n\n* 04, FSOutputSummer的write里面进行校验\n数据校验的方式:\n> public static final int CHECKSUM_CRC32   = 1;\n\n* 05, write里面调用本对象的write1, 里面buf是缓冲区4608，count=0.len是数据的长度,count是用来计算前面拷贝了多少数据，超过缓冲区就flush掉\n* ![IMAGE](quiver-image-url/84F23C146DE898F881343038319879DA.jpg =407x148)\n* ![IMAGE](quiver-image-url/45B1D8AF23106C5DF098BFEA952EE4A9.jpg =802x728)\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 以免忘记还是总结一下:\n* 01, 首先创建FileSystem.get的时候会根据配置文件的不同创建不同的文件系统，有可能是本地文件系统或者分布式文件系统\n\n* 02, 然后开始创建输出流对象。\n\n* 03, 之后写入write操作，在写入的时候判断根据数据量，如果大于512字节，那么，进行校验，形成一个4个字节的数据，和512字节的数据一起组成一个chunk，然后用来把所有的chunk放在一起，组成一个packet包，一个包中一共64k数据，包括516*126=65016，也就是126个chunk，然后还有33个字节的包头数据，最后组成一个包\n\n* 04, 如果不大于512字节，直接放在缓存中，然后把后续的写入一起累加起来，最后还是不大于512字节，就等着close的时候直接一并把那些不足的给搞到一个packet中写出。\n\n* 05, 在关闭的时候才会把从主线程中把包给放到序列中flush出去。\n\n* 06, 第一个数据节点写完之后，后续会把第一个节点的数据写入到第二个节点，第二个节点写入到第三个节点，以此类推，直到写完所有副本。写完之后会进行消息通知，从队列中删除。如果出错，那么会重新把这个包放在队列最前，重新开始。\n\n* 大致过程如上，有写地方描述是不对的，大体上是对的，具体参考源码\n\n\n* `参考  97/756  [O'REILLY]Hadoop.The.Definitive.Guide.4th.Edition.2015.3`\n\n  * ![IMAGE](quiver-image-url/9A4CBAC625DF4291925A4FB4202C5349.jpg =639x528)\n\n* `参考  100/756  [O'REILLY]Hadoop.The.Definitive.Guide.4th.Edition.2015.3`\n\n  * ![IMAGE](quiver-image-url/F2B1ACAD321BDEB648E1F47E4B1E4048.jpg =624x580)\n \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## Secondary Namenode\n*减少启动日志是指如果没有secondary namenode的话，namenode需要融合节点，镜像文件只有一个，可能超级大，会比较耗时。但是如果有了secondary namenode的话，会让namenode定时滚动，通过设定检查点来融合日志，下载namenode重新启动的时候不需要重头融合镜像文件和编辑日志，速度会快*\n\n* SecondaryNamenode的作用：帮助namenode合并编辑日志，减少Namenode的启动时间 #TODO\n  * ![IMAGE](quiver-image-url/7FDE9B6327EB17CAC473A03BD7F33820.jpg =784x754)\n  * 1. The secondary asks the primary to roll its in-progress edits file, so new edits go to a new file. The primary also updates the seen_txid file in all its storage directories.\n  * 2. The secondary retrieves the latest fsimage and edits files from the primary (using HTTP GET).\n  * 3. The secondary loads fsimage into memory, applies each transaction from edits, then creates a new merged fsimage file.\n  * 4. The secondary sends the new fsimage back to the primary (using HTTP PUT), and the primary saves it as a temporary .ckpt file.\n  * 5. The primary renames the temporary fsimage file to make it available.\n  \n  * 滚动时间是一个小时，在hdfs-default.xml中有如下配置信息\n    ```\n    <property>\n      <name>dfs.namenode.checkpoint.period</name>\n      <value>3600</value>\n      <description>The number of seconds between two periodic checkpoints.\n      </description>\n    </property>\n    ```"
+    }
+  ]
+}

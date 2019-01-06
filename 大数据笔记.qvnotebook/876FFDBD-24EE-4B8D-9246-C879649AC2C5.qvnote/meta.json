@@ -3,7 +3,7 @@
   "tags" : [
 
   ],
-  "title" : "14-Calllog项目-04: Hive通过MR查询hbase",
-  "updated_at" : 1545189111,
+  "title" : "14-Calllog项目-04: Hive通过MR查询hbase和yarn设置",
+  "updated_at" : 1545216678,
   "uuid" : "876FFDBD-24EE-4B8D-9246-C879649AC2C5"
 }

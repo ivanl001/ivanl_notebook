@@ -1,0 +1,9 @@
+{
+  "title": "02-Linux基础-0600-awk命令",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "* jps是这种\n\n  ```\n  34800 RunJar\n  4340 ResourceManager\n  8100 RunJar\n  4246 DFSZKFailoverController\n  70411 HMaster\n  6491 Application\n  72554 Jps\n  69341 Main\n  3934 NameNode\n  69150 KafkaToHbaseApp\n  ```\n\n\n* 管道给awk(默认空格分隔，打印第一个元素)\n  > jps | awk '{print $1}'\n  ```\n  34800\n  4340\n  8100\n  4246\n  72567\n  70411\n  6491\n  69341\n  3934\n  69150\n  ```\n\n* 也可以指定分隔符\n  > less /etc/hosts | awk '{print \\$1}' | awk -F '.' '{print $4}'\n\n* 动态提取ip地址\n  > ifconfig | grep inet | head -1 | awk '{print $2}'\n * 上面分别是ifconfig，打印出ip各种信息\n * grep inet， 过滤出inet字样的行\n * head -1， 取出过滤后的第一行\n * awk '{print $2}', 第一行按照空格分隔后取出第二个分隔，也就是ip地址了\n"
+    }
+  ]
+}

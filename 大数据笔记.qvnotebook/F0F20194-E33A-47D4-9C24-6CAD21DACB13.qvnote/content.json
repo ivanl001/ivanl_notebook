@@ -1,0 +1,41 @@
+{
+  "title": "03-Hadoop-0802-随机分区",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "*随机分区比较好理解：大概意思就是我第一次重写分区类，通过随机值分区，而不是hash或者其他有规律对值。这样子第一次分区并且reduce后，结果是稍微混乱对，但是已经聚合过一次，数据量小很多。然后对输出的文件重新进行MR，这次就按照正常的hash分区然后聚合就可以了*"
+    },
+    {
+      "type": "markdown",
+      "data": "* 我这里只贴一下第一次的随机分区类和第二次的MR，因为第二次的输入不再是普通的文本输入了。具体如下：\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 第一次MR的分区类\n\n```java\npackage im.ivanl001.bigData.Hadoop.A13_01_RandomPartitioner;\n\nimport org.apache.hadoop.io.IntWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Partitioner;\n\nimport java.util.Random;\n\n/**\n * #author      : ivanl001\n * #creator     : 2018-10-24 15:09\n * #description : 自定义分区函数\n **/\npublic class IMPartitioner extends Partitioner<Text, IntWritable>{\n\n    public int getPartition(Text text, IntWritable intWritable, int i) {\n        //i这里传进来的是reducer的个数\n        return new Random().nextInt(i);\n    }\n}\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "------------------------------剩下是第二次MR的代码哈------------------------------"
+    },
+    {
+      "type": "markdown",
+      "data": "## 第二次MR的App代码\n\n```java\npackage im.ivanl001.bigData.Hadoop.A13_02_RandomPartitioner_stage01;\n\nimport org.apache.hadoop.conf.Configuration;\nimport org.apache.hadoop.fs.FileSystem;\nimport org.apache.hadoop.fs.Path;\nimport org.apache.hadoop.io.IntWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Job;\nimport org.apache.hadoop.mapreduce.lib.input.FileInputFormat;\nimport org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;\nimport org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;\n\nimport java.io.IOException;\n\n/**\n * #author      : ivanl001\n * #creator     : 2018-10-20 19:35\n * #description : wordcount\n **/\npublic class IMWordCountApp {\n\n    /*\n     * mapper过程之后产生的文件的命名中是***-m-00000*什么的，m代表是mapper，后面的数字代表是分区\n     * reducer过程之后产生的文件的命名中是***-r-00000*什么的，r代表的是reducer，后面的数字代表的也是分区\n     * 如果设置三个reducer，在没有重写分区函数的情况下，会有三个r，也就会有三个输出文件，因为一个reducer会有一个输出文件\n     * 如果重写了分区函数，其实也会生成三个文件，但是只有算法中有指向的才会有内容，其他的就是空文件了\n     * */\n    public static void main(String[] args) {\n\n        try {\n\n            if (args.length != 1) {\n                System.out.println(\"参数个数有误！\");\n                return;\n            }\n\n            //\"/users/ivanl001/Desktop/bigData/input/zhang.txt\"\n//            String inputFileStr = args[0];\n            String outputFolderStr = args[0];\n\n            //0，创建配置对象，以修正某些配置文件中的配置\n            Configuration configuration = new Configuration();\n            //这里一旦设置单机版就会出错，而且不能有core-default.xml文件，这个文件中一旦配置也会有问题，不知道为啥，先过\n//            configuration.set(\"fs.defaultFS\", \"file:///\");\n            //configuration.set(\"fs.hdfs.impl\", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());\n            //configuration.set(\"fs.file.impl\", org.apache.hadoop.fs.LocalFileSystem.class.getName());\n\n            //这里因为文件存在，总是需要删除，麻烦，所以直接程序自动删除\n            FileSystem.get(configuration).delete(new Path(outputFolderStr));\n\n\n            //1，创建作业\n            Job wordcountJob = Job.getInstance(configuration);\n            wordcountJob.setJobName(\"wordcountApp\");\n            //之前这句没写，就会一直报错，什么mapper类找不到，这里需要注意一下\n            wordcountJob.setJarByClass(IMWordCountApp.class);\n\n            //--------------------------------这里设置输出格式类------------------------------------\n            //这个是设置输出格式为------------序列文件输出格式-------------，我这里并不想保存序列文件，所以这里就不设置\n            //wordcountJob.setOutputFormatClass(SequenceFileOutputFormat.class);\n\n\n            //2,设置作业输入\n            //这句话可以不加，因为默认就是文本输入格式\n            //###################################################这里需要注意一下：这里输入格式不能再是TextInputFormat#################################################################\n            wordcountJob.setInputFormatClass(KeyValueTextInputFormat.class);\n            FileInputFormat.addInputPath(wordcountJob, new Path(\"/Users/ivanl001/Desktop/bigData/output008/part-r-00000\"));\n            FileInputFormat.addInputPath(wordcountJob, new Path(\"/Users/ivanl001/Desktop/bigData/output008/part-r-00001\"));\n            FileInputFormat.addInputPath(wordcountJob, new Path(\"/Users/ivanl001/Desktop/bigData/output008/part-r-00002\"));\n            FileInputFormat.addInputPath(wordcountJob, new Path(\"/Users/ivanl001/Desktop/bigData/output008/part-r-00003\"));\n\n\n\n            //3，设置mapper\n            wordcountJob.setMapperClass(IMWordCountMapper.class);\n            wordcountJob.setMapOutputKeyClass(Text.class);\n            wordcountJob.setMapOutputValueClass(IntWritable.class);\n\n\n\n            //----中间设置一下分区函数\n            //这里是第二个阶段，所以不需要进行分区了，直接读取，然后做正确的hash分区即可\n            //wordcountJob.setPartitionerClass(IMPartitioner.class);\n\n\n\n            //4, 设置reducer\n            wordcountJob.setReducerClass(IMWordCountReducer.class);\n            //每个reduce会产生一个输出结果或者输出文件，这里设置一个reduce\n            wordcountJob.setNumReduceTasks(2);//设置reducer的个数，如果是0就是不需要r\n            //设置输出的key和value的类型\n            wordcountJob.setOutputKeyClass(Text.class);\n            wordcountJob.setOutputValueClass(IntWritable.class);\n\n            //5, 设置输出\n            wordcountJob.setOutputValueClass(FileOutputFormat.class);\n            FileOutputFormat.setOutputPath(wordcountJob, new Path(outputFolderStr));\n\n            //6，提交，开始处理\n            wordcountJob.waitForCompletion(false);\n\n        } catch (IOException e) {\n            e.printStackTrace();\n        } catch (InterruptedException e) {\n            e.printStackTrace();\n        } catch (ClassNotFoundException e) {\n            e.printStackTrace();\n        }\n    }\n}\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 第二次MR的Mapper\n\n```java\npackage im.ivanl001.bigData.Hadoop.A13_02_RandomPartitioner_stage01;\n\nimport org.apache.hadoop.io.IntWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Mapper;\n\nimport java.io.IOException;\n\n/**\n * #author      : ivanl001\n * #creator     : 2018-10-20 19:23\n * #description : mapper\n **/\npublic class IMWordCountMapper extends Mapper<Text, Text, Text, IntWritable>{\n\n    @Override\n    protected void map(Text key, Text value, Context context) throws IOException, InterruptedException {\n\n        //因为输入格式是：KeyValueTextInputFormat，而这个job作业是上一次随机分区作业完成之后进行的另外一个作业，所以输入也就是上一个作业产生的文件，内容大致如下：所以key直接就是Text，value是IntWritable，可以直接写出到r中去\n        /*\n        Because\t1\n        Do\t1\n         */\n\n        context.write(key, new IntWritable(Integer.parseInt(value.toString())));\n\n        /*System.out.println(\"key:\" + key + \",value:\" + value);\n        String[] splitStr = value.toString().split(\" \");\n        Text outText = new Text();\n        IntWritable outInt = new IntWritable();\n        for (String str : splitStr) {\n            outText.set(str);\n            outInt.set(1);\n            //这里是意思就是把每个单词拼成(zhang,1), (li, 1), (dan, 1)类似的格式传给reduce\n            context.write(outText, outInt);\n        }*/\n    }\n}\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 第二次MR的Reducer\n\n```java\npackage im.ivanl001.bigData.Hadoop.A13_02_RandomPartitioner_stage01;\n\nimport org.apache.hadoop.io.IntWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Reducer;\n\nimport java.io.IOException;\n\n/**\n * #author      : ivanl001\n * #creator     : 2018-10-20 19:30\n * #description : reducer\n **/\npublic class IMWordCountReducer extends Reducer<Text, IntWritable, Text, IntWritable> {\n\n\n    @Override\n    protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {\n        int count = 0;\n        for (IntWritable intWritable : values) {\n            count = count + intWritable.get();\n        }\n        context.write(key, new IntWritable(count));\n    }\n}\n```"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

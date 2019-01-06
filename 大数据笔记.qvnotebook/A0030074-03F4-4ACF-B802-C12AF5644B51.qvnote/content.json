@@ -1,0 +1,69 @@
+{
+  "title": "04-Hive-0207-Hive04:优化和优化工具",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "> The first step to learning how Hive works (after reading this book...) is to use the EXPLAIN feature to learn how Hive translates queries into MapReduce jobs.\n第一步是学会用EXPLAIN命令了解hive如何把查询语言转化成MR作业"
+    },
+    {
+      "type": "markdown",
+      "data": "## 1, 优化工具explain\n\n### 查看语句的执行流程和整体情况explain\n\n* 01, 在需要查看的语句前添加explain关键字就可以\n  > explain select * from t8;\n  \n  > explain select a.\\*,b.\\* from customers a left outer join orders b on a.id = b.cid;\n\n* 02, 查看更加详尽的步骤信息\n  \n  > explain extended select * from t8;\n  > explain extended select a.\\*,b.\\* from customers a left outer join orders b on a.id = b.cid;\n\n#### 总结一下，有点用处但是感觉用处不大，不是很好分析啊，可能是分析的比较少"
+    },
+    {
+      "type": "markdown",
+      "data": "## 2，limit字段\n* 01, 人们在查询的时候会使用limit字段，但是在某些查询的时候即便是使用了limit字段依然会执行整个查询，只是返回有用的信息(个人表示不太懂暂时)。这样很浪费。在hive中可以设置如下属性避免这种情况发生：\n\n```xml\n<property>\n  <name>hive.limit.optimize.enable</name> \n  <value>true</value>\n  <description>Whether to enable to optimization to try a smaller subset of data for simple LIMIT first.</description>\n</property>\n```\n* 02, 然后需要设置一下最大最小限制量\n\n```xml\n<property>\n  <name>hive.limit.row.max.size</name>\n  <value>100000</value>\n  <description>When trying a smaller subset of data for simple LIMIT, how much size we need to guarantee each row to have at least. </description>\n</property>\n<property>\n  <name>hive.limit.optimize.limit.file</name>\n  <value>10</value>\n  <description>When trying a smaller subset of data for simple LIMIT, maximum number of files we can sample.</description> \n</property>\n```\n\n* 但是有一个问题需要注意：设置了如上属性之后有一些有用的数据有可能会被过滤掉。具体说法如下\n* A drawback of this feature is the risk that useful input data will never get processed. For example, any query that requires a reduce step, such as most JOIN and GROUP BY operations, most calls to aggregate functions, etc., will have very different results. Per- haps this difference is okay in many cases, but it’s important to understand.\n"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    },
+    {
+      "type": "markdown",
+      "data": "## 3，连接优化\n### 3.1，大小表连接查询优化\n\n* *如果有大表有小表需要连接查询，那么可以开启mapjoin提高性能，开启之后就算没有设置连接暗示也能判断大小表，然后大小表的时候可以进行map连接，从而避免reduce连接*\n  > set hive.auto.convert.join=true\t\t\t//设置自动转换连接,默认开启了。\n\n* 当然使用连接暗示也是可以的。如下，/*+ mapjoin(customers) */这个那是customer是小表哈\n  > select /*+ mapjoin(customers) */ a.*, b.* from customers a left outer join orders b on a.id = b.cid ;\n\n* 当然如果是桶表连接查询的话，是一种特殊的mapjoin连接查询。桶表的连接查询只会获取桶表中需要的那些字段，而不是加载所有字段数据。需要注意：这个只适用于桶表数量不相同的情况\n  > set hive.optimize.bucketmapjoin=true;\n\n* 在桶数量相同或者其他情况，不想翻译了，所以直接截图过来了，如下图\n* ![IMAGE](quiver-image-url/00F975E53BF662D42741CA6C0E7A6CD8.jpg =829x549)\n\n\n### 3.2，大表连接\n\n* it’s important to know which table is the largest and put it last in the JOIN clause, or use the /* streamtable(table_name) */ directive.\n* 具体参考 `120/350   [O'REILLY]Programming Hive.pdf`"
+    },
+    {
+      "type": "markdown",
+      "data": "## 4, 本地模式\n\n*有写时候输入数据量不是很大的时候，是可以开启本地模式执行任务的。因为每次开启任务需要消耗满多时间。那么对于这些小数据量的数据，可以设置自定检测，并临时开启本地模式*\n\nhive-site.xml\n\n```xml\n<property> \n  <name>hive.exec.mode.local.auto</name> \n  <value>true</value>\n  <description>Let hive determine whether to run in local mode automatically</description> \n</property>\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 5, 并发执行\n\n* *hive会把查询分成很多阶段。不同阶段是一个一个执行的，开启并发执行可以提高作业的执行效率*\n* Hive converts a query into one or more stages. Stages could be a MapReduce stage, a sampling stage, a merge stage, a limit stage, or other possible tasks Hive needs to do. By default, Hive executes these stages one at a time. However, a particular job may consist of some stages that are not dependent on each other and could be executed in parallel, possibly allowing the overall job to complete more quickly. However, if more stages are run simultaneously, the job may complete much faster.\n\n```xml\n<property>\n  <name>hive.exec.parallel</name>\n  <value>true</value>\n  <description>Whether to execute jobs in parallel</description>\n</property>\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "## 6, Strict Mode\n\n* 开启严格模式限制三种查询\n\n  * 1, 分区表在未指定分区情况下不能查询。必须要在where执行分区时候才能查询\n  \n  * 2，ORDER BY查询没有limit字段限制则不能查询\n\n  * 3，笛卡尔积查询"
+    },
+    {
+      "type": "markdown",
+      "data": "## 7，最优化mapper和reducer个数\n\n* *hive会根据输入文件的大小自动决定mr个数，一般情况下效果都非常好。*\n\n* The default value of hive.exec.reducers.bytes.per.reducer is 1 GB. Changing this value to 750 MB causes Hive to estimate four reducers for this job:\n\n  ```shell\n  set hive.exec.reducers.bytes.per.reducer=750000000;\n  ```\n* 同时最好设置最大reducer个数\n  * ![IMAGE](quiver-image-url/1CE2330465205E8451701B1A9A701A0A.jpg =735x443)\n\n#### 总结：这个看的有点迷糊，大概意思懂了，具体可以参考如下\n参考 `Tuning the Number of Mappers and Reducers  158/350  [O'REILLY]Programming Hive.pdf`"
+    },
+    {
+      "type": "markdown",
+      "data": "## 8, JVM重用\n*设置jvm重用对于hive执行作业是很有效的,特别是执行的job有的tasks特别多的情况下。也即是小文件多的情况等*\n\nmapred-site.xml\n\n```xml\n<property>\n  <name>mapred.job.reuse.jvm.num.tasks</name>\n  <value>10</value>\n  <description>How many tasks to run per jvm. If set to -1, there is no limit.</description> \n</property>\n```\n  * ![IMAGE](quiver-image-url/A9FD7CAAF495E56E0388947F379CC87C.jpg =702x118)\n* #### 开启的话可以很大程度提高效率，只是在reduce任务执行时间，这些slots就会闲置了"
+    },
+    {
+      "type": "markdown",
+      "data": "## 9，Indexes\n*创建索引*"
+    },
+    {
+      "type": "markdown",
+      "data": "## 10，动态分区\n\n  * 动态分区的作用不言而喻，在文件夹的层面上来进行分区，直接在量级上空置搜索的范围\n\n  * *在加入的时候根据加入数据的字段自动分区，而不必把分区数据定死。如下，演示一下动态分区*\n\n  * 首先创建一个有年份和月份的表，用作数据插入的元数据\n    > create table t7 (id int , name string , age int, year string, month string);\n  \n  * 然后插入两条不同年份或月份的数据吧\n    > insert into t7 (id, name, age, year, month) values (1, \"ivanl0000\", 10, 2015, 12);\n  \n    > insert into t7 (id, name, age, year, month) values (2, \"ivanl111111\", 15, 2016, 11);\n  \n  * 然后把上面表中的两条数据插入到我们之前建的分区表t5中去，因为并没有开启动态分区，会报错：\n    > insert into t5 partition (year, month) select id, name, age, year, month from t7;\n  \n  * 上面的插入会报错, 默认严格模式，严格模式在插入时候必须要指定一个静态分区，我们关闭这个严格模式即可：\n    > FAILED: SemanticException [Error 10096]: Dynamic partition strict mode requires at least one static partition column. To turn this off set hive.exec.dynamic.partition.mode=nonstrict\n  \n  * 根据提示可以知道需要设置分区模式为非严格模式\n    > set hive.exec.dynamic.partition.mode=nonstrict\n  \n  * 重新插入发现ok了"
+    },
+    {
+      "type": "markdown",
+      "data": "## 11，优化设计\n### 01，分区\n  * ![IMAGE](quiver-image-url/759BBF09DE6D6EB462E989472F8F957A.jpg =857x496)\n### 02，桶表\n  * ![IMAGE](quiver-image-url/599ECDB3A7894D1F0E264D30CAB85779.jpg =831x220)\n  "
+    },
+    {
+      "type": "markdown",
+      "data": "## 12, index\n*这里是另外一本书，`参考 205/313 [PACKT]Apache Hive Essentials.pdf`*\n\n* 01，创建索引(COMPACT和BITMAP是两种不同的索引方式，都是ok的哈)\n\n  > CREATE INDEX idx_id_employee_id ON TABLE employee_id (employee_id) AS 'COMPACT' WITH DEFERRED REBUILD;\n\n  > CREATE INDEX idx_sex_employee_id ON TABLE employee_id (sex_age) AS 'BITMAP' WITH DEFERRED REBUILD;\n\n* 02，刷新索引\n*WITH DEFERRED REBUILD字段表明这个索引不是即使生效的，可以使用如下命令进行建立索引。当然如果数据有所变动，索引创建则是自动的哈。大概意思可以理解成第一次手动创建建立索引即可*\n\n  > ALTER INDEX idx_id_employee_id ON employee_id REBUILD;\n  \n  > ALTER INDEX idx_sex_employee_id ON employee_id REBUILD;\n\n* 03, 查看索引表，参考原书吧\n\n* 04，删除索引\n  > DROP INDEX idx_sex_employee_id ON employee_id;\n\n * 另外两种方式提高性能：\n * ![IMAGE](quiver-image-url/6BBBFCC748D3EF0FCD5CD1F26B1F05D2.jpg =842x619)\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 13, 解决数据倾斜配置\n\n> SET hive.optimize.skewjoin=true; \n--If there is data skew in join, set it to true. Default is false.\n\n> SET hive.skewjoin.key=100000;\n--This is the default value. If the number of key is bigger than this, the new keys will send to the other unused reducers.\n\n* 下面是解决groupby的时候遇到的数据倾斜需要再增加的配置\n> SET hive.groupby.skewindata=true;\n"
+    },
+    {
+      "type": "markdown",
+      "data": "\n\n"
+    }
+  ]
+}

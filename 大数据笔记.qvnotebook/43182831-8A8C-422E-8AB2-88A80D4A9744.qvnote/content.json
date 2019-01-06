@@ -1,0 +1,17 @@
+{
+  "title": "15-eshop项目-0401-flume和kafka",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "### 1, 首先配置flume\n\n```properties\n# 0, 首先指定三种组件：源,通道,槽\nagent.sources = r1\nagent.channels = c1\nagent.sinks = k1\n\n\n# 1, 定义source相关信息，绑定流入的数据， 并制定输出的方向\n# totalEvents可以不必设定\nagent.sources.r1.type = spooldir\nagent.sources.r1.spoolDir = /data/flume/estore_logs\nagent.sources.r1.channels = c1\n\n\n# 2, 定义channel相关的信息, 这里不需要制定输出，而是让sink指定输入\n的\nagent.channels.c1.type = memory\n\n\n# 3, 定义sink相关的信息,这里是kafka\nagent.sinks.k1.channel = c1\nagent.sinks.k1.type = org.apache.flume.sink.kafka.KafkaSink\nagent.sinks.k1.kafka.bootstrap.servers = slave01:9092 slave02:9092 slave03:9092\nagent.sinks.k1.kafka.topic = calllogs\nagent.sinks.k1.kafka.flumeBatchSize = 20\nagent.sinks.k1.kafka.producer.acks = 1\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "\n### 2， 启动kafka，创建主题\n\n* 01，kafka依赖zk，所以启动kafka之前需要先启动zk\n*需要在所选服务器上分别执行如下命令，同时可以通过第二个命令查看zk状态*\n\n  > zkServer.sh start \n  \n  > zkServer.sh status\n  \n* 02, 启动kafka集群\n*需要在所选服务器上分别执行如下命令*\n  > kafka-server-start.sh /usr/local/kafka/config/server.properties &\n\n* 03, 创建所需要的kafka主题，方便flume把收集到的数据发送过来\n*4个分区，三个副本因子，也即是分成4个区，每个区保存3个副本*\n  > kafka-topics.sh --create --zookeeper slave01:2181 --replication-factor 3 --partitions 4 --topic estore_logs\n\n* 04, 查看主题\n  > kafka-topics.sh --list --zookeeper slave01:2181\n\n* 05, 为了方便测试，我们这里先启动控制台消费者，消费刚才创建的estore_logs主题\n  > kafka-console-consumer.sh --bootstrap-server slave01:9092 --topic estore_logs --from-beginning --zookeeper slave02:2181\n\n* 06, 这里顺便给出开启生产者的方式以便调试的时候使用\n  > kafka-console-producer.sh --broker-list slave01:9092 --topic estore_logs\n\n* 07，如果有需要，可以设置kafka的存活时间\n*server.properties文件*\n  ```java\n  # The minimum age of a log file to be eligible for deletion\n  # 这里是存活时间，默认是一周7*24\n  log.retention.hours=168\n  ```"
+    },
+    {
+      "type": "markdown",
+      "data": "### 3, 启动kafka，创建主题后，可以开启flume进行搜集了\n> flume-ng agent -n agent -c conf -f /root/flume/conf/myConf/logs-spooldir-kafka.properties &"
+    }
+  ]
+}

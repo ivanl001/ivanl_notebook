@@ -1,0 +1,25 @@
+{
+  "title": "15-eshop项目-0206-nginx安装配置",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 一，centos上ngix安装\n\n* 1、添加源\n\n  *默认情况Centos7中无Nginx的源，最近发现Nginx官网提供了Centos的源地址。因此可以如下执行命令添加源：*\n\n  > sudo rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm\n \n\n* 2、安装Nginx\n\n  *通过yum search nginx看看是否已经添加源成功。如果成功则执行下列命令安装Nginx。*\n\n  > sudo yum install -y nginx\n \n\n* 3、启动Nginx并设置开机自动运行\n\n  > sudo systemctl start nginx.service\n  > sudo systemctl enable nginx.service\n \n\n* 4、浏览查看效果\n\n  > http://master:80\n  \n* 5, 安装位置\n  > whereis nginx\n\n  * nginx: /usr/sbin/nginx /usr/lib64/nginx /etc/nginx /usr/share/nginx /usr/share/man/man8/nginx.8.gz\n  \n  ```java\n  以下是Nginx的默认路径： \n  * /var/run/nginx.pid这个可以找到nginx的进程号\n  (1) Nginx配置路径：/etc/nginx/ \n  (2) PID目录：/var/run/nginx.pid \n  (3) 错误日志：/var/log/nginx/error.log \n  (4) 访问日志：/var/log/nginx/access.log \n  (5) 默认站点目录：/usr/share/nginx/html\n  事实上，只需知道Nginx配置路径，其他路径均可在/etc/nginx/nginx.conf 以及/etc/nginx/conf.d/default.conf 中查询到。\n  ```\n  "
+    },
+    {
+      "type": "markdown",
+      "data": "## 二，mac上nginx安装\n\n* 1, brew 搜索软件\n  > brew search nginx\n\n* 2, brew 安装软件\n  > brew install nginx\n\n* 3, brew 卸载软件\n  > brew uninstall nginx\n\n* 4, brew 升级\n  > sudo brew update\n\n* 5, 查看安装信息(经常用到, 比如查看安装目录等)\n  > sudo brew info nginx\n\n* 6, 查看已经安装的软件\n  > brew list\n\n* 启动nginx\n  > sudo brew services start nginx\n\n* 浏览器查看效果\n  > http://localhost:8080\n\n* nginx的安装位置:\n  > nginx -V\n  * 查找nginx各种位置\n  * /usr/local/etc/nginx\n\n  > where nginx\n  * /usr/local/bin/nginx\n  * /usr/local/Cellar/nginx/1.15.3//bin/nginx"
+    },
+    {
+      "type": "markdown",
+      "data": "## 三，centos和mac上查看端口占用情况：\n\n* centos：\n  *a代表all,不带a默认是estabed的那些连接，n代表把显示ip而不是hostname, o代表display timers，p代表显示相关的进程*\n  > netstat -anop | grep 80\n\n* mac\n  *-i代表selects the listing of files any of whose Internet address matches the address specified in i，这里可以匹配pid，也可以匹配端口，如下*\n  > lsof  -i:8080 \n\n  > lsof -i | grep pid\n  > lsof  -i:port"
+    },
+    {
+      "type": "markdown",
+      "data": "## 四，nginx配置\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 五，防盗链\n*这个之前写爬虫的时候遇到过，如果访问一个页面中的超链接的时候，进去的时候需要把当前的地址一并带过去，验证通过才允许访问，直接拷贝链接进行访问是被阻止的，其实也就是设置了http_referer的缘故*"
+    }
+  ]
+}

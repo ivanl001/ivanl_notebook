@@ -3,19 +3,19 @@
   "cells": [
     {
       "type": "markdown",
-      "data": "运行java   java -cp 00-JarTest-1.0-SNAPSHOT.jar Test\n"
+      "data": "> 运行java   \njava -cp 00-JarTest-1.0-SNAPSHOT.jar Test\n  * cp的意思是classpath\n"
     },
     {
       "type": "markdown",
-      "data": "hadoop jar 03-Hadoop-1.0-SNAPSHOT.jar im.ivanl001.bigData.Hadoop.WordCount.IMWordCountApp /user/root/test/zhang.txt /user/root/test/out"
+      "data": "> 运行hadoop的jar包\nhadoop jar 03-Hadoop-1.0-SNAPSHOT.jar im.ivanl001.bigData.Hadoop.WordCount.IMWordCountApp /user/root/test/zhang.txt /user/root/test/out"
     },
     {
       "type": "markdown",
-      "data": "![IMAGE](quiver-image-url/8FC78F1B87E51C8D64291AA85ECB8426.jpg =567x542)\n"
+      "data": "* 作业提交过程流程图\n\n  * ![IMAGE](quiver-image-url/8FC78F1B87E51C8D64291AA85ECB8426.jpg =567x542)\n "
     },
     {
       "type": "markdown",
-      "data": "切片是针对mapper而言的， 有多少切片，就会有多少个mapper\n![IMAGE](quiver-image-url/22E425DE62073EF1B26D1331CF02403A.jpg =898x695)"
+      "data": "切片是针对mapper而言的， 有多少切片，就会有多少个mapper\n  * ![IMAGE](quiver-image-url/22E425DE62073EF1B26D1331CF02403A.jpg =898x695)"
     },
     {
       "type": "markdown",

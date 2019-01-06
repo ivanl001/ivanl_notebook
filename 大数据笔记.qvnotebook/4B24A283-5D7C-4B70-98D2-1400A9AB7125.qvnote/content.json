@@ -1,0 +1,17 @@
+{
+  "title": "04-Hive-0205-Hive03:视图",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1，Hive的使用03"
+    },
+    {
+      "type": "markdown",
+      "data": "## ，Hive的view\n*相当于是复杂查询的快捷方式，把查询语句存到view中去*\n*View是逻辑视图存在，Hive暂时不支持物化视图*\n\n* 01，比如说你经常使用到连接查询语句\n  >  select a.\\*, b.\\* from customers as a left outer join orders as b on a.id = b.cid;\n\n* 02，每次都写这么多很麻烦, 所以可以把这语句存入到view中\n  *会报错AILED: SemanticException [Error 10036]: Duplicate column name: id，看03*\n  > create view join01_view as select a.\\*, b.\\* from customers as a left outer join orders as b on a.id = b.cid;\n\n* 03, 因为customers和orders中都有id字段，会重复，所以这里需要具体指定\n  > create view join01_view as select a.id as aid, a.name, b.id as bid, b.orderno, b.price from customers as a left outer join orders as b on a.id = b.cid;\n\n* 04，显示show tables，可以看到多了一个表，这个表是虚拟表，可以通过查看其信息具体查看\n  > show tables;\n  > desc formatted join01_view;\n\n* 05, 通过操纵这张表来查看刚才我们需要查看的信息,只不过语句就方便多了\n  > select * from join01_view;\n\n* 06, 也可以查某些字段\n  > select aid, price from join01_view;"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

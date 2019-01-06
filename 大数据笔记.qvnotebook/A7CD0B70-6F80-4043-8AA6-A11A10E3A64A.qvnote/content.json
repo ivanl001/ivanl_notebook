@@ -1,9 +1,13 @@
 {
-  "title": "02-Linux基础-1001-centos同步时间",
+  "title": "02-Linux基础-1001-centos时间date",
   "cells": [
     {
       "type": "markdown",
-      "data": "* 1.安装ntpdate工具\n  > sudo yum -y install ntp ntpdate\n\n* 2.设置系统时间与网络时间同步\n  > sudo ntpdate cn.pool.ntp.org\n\n* 3.将系统时间写入硬件时间\n  > sudo hwclock --systohc\n\n* 4.查看系统时间\n  > timedatectl\n  ```\n  #得到\n        Local time: 四 2017-09-21 13:54:09 CST\n    Universal time: 四 2017-09-21 05:54:09 UTC\n          RTC time: 四 2017-09-21 13:54:09\n         Time zone: Asia/Shanghai (CST, +0800)\n       NTP enabled: no\n  NTP synchronized: no\n   RTC in local TZ: yes\n        DST active: n/a\n  ```\n  \n* 如果没有执行步骤3，则Local time与RTC time显示的值可能不一样\n\n"
+      "data": "## centos同步时间\n* 1.安装ntpdate工具\n  > sudo yum -y install ntp ntpdate\n\n* 2.设置系统时间与网络时间同步\n  > sudo ntpdate cn.pool.ntp.org\n\n* 3.将系统时间写入硬件时间\n  > sudo hwclock --systohc\n\n* 4.查看系统时间\n  > timedatectl\n  ```\n  #得到\n        Local time: 四 2017-09-21 13:54:09 CST\n    Universal time: 四 2017-09-21 05:54:09 UTC\n          RTC time: 四 2017-09-21 13:54:09\n         Time zone: Asia/Shanghai (CST, +0800)\n       NTP enabled: no\n  NTP synchronized: no\n   RTC in local TZ: yes\n        DST active: n/a\n  ```\n  \n* 如果没有执行步骤3，则Local time与RTC time显示的值可能不一样\n"
+    },
+    {
+      "type": "markdown",
+      "data": "## centos获取时间\n* 1, 获取时间\n*%H是24小时制, %I是12小时制* \n  > date +%Y/%m/%d/%H:%M:%S   \n    * 2018/12/25/12:22:18\n  \n* 2, 时间加减：加一天\n  \n  > date -d \"1 day\" +%Y/%m/%d\n\n* 3, 减一天\n  > date -d \"-1 day\" +%Y/%m/%d\n\n* 4, 加一个月\n  > date -d \"1 month\" +%Y/%m/%d\n\n* 5, 减一个月\n  > date -d \"-1 month\" +%Y/%m/%d\n\n* 6, 加一分钟或者减一分钟\n  > date -d \"+1 minute\" +%Y/%m/%d/%H:%M:%S \n  > date -d \"-1 minute\" +%Y/%m/%d/%H:%M:%S "
     }
   ]
 }

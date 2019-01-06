@@ -1,0 +1,13 @@
+{
+  "title": "07-HBase-0301-Hbase架构相关",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "* 在hbase中是有一个默认的命名空间的， 叫做“hbase”\n* 该命名空间下有两个默认的表， 一个是namespace，用来存储hbase的所有命名空间，一个是meta，是元数据表，存储"
+    },
+    {
+      "type": "markdown",
+      "data": "![IMAGE](quiver-image-url/82940140B832FB72AD6235EA0BE4E39D.jpg =854x526)\n\n### hbase架构解析,讲的还蛮好的，所以我这里就不总结了，看这篇文章吧：\n\n* https://www.cnblogs.com/swordfall/p/8737328.html"
+    }
+  ]
+}

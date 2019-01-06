@@ -7,7 +7,7 @@
     },
     {
       "type": "markdown",
-      "data": "## 2, zk的基本使用\n*每一个目录都是一个节点*\n\n* 01，显示节点目录文件\n  > ls /\n  > ls /zookeeper\n  > ls /zookeeper/quota\n\n* 02，创建节点\n  > create /ivanl001 ivanl001\n  > create /ivanl001/ivanl002 ivanl002\n\n* 03, 获取节点的信息和值\n  > get /ivanl001\n\n* 04, 更改某个节点的值\n  > set /ivanl001/ivanl002 ivanl00200\n\n* 05, 删除某个节点\n  > delete /a\n\n* 06, 如果/a下面有其他的内容，delete删不掉的，需要递归删除\n  > rmr /a"
+      "data": "## 2, zk的基本使用\n*每一个目录都是一个节点*\n\n* 01，显示节点目录文件\n  > ls /\n  > ls /zookeeper\n  > ls /zookeeper/quota\n\n* 02，创建节点,创建节点必须要给节点赋值\n  > create /ivanl001 ivanl001\n  > create /ivanl001/ivanl002 ivanl002\n\n* 03, 获取节点的信息和值\n  > get /ivanl001\n\n* 04, 更改某个节点的值\n  > set /ivanl001/ivanl002 ivanl00200\n\n* 05, 删除某个节点\n  > delete /a\n\n* 06, 如果/a下面有其他的内容，delete删不掉的，需要递归删除\n  > rmr /a"
     },
     {
       "type": "markdown",

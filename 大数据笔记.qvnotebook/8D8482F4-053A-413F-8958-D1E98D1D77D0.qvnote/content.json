@@ -1,13 +1,17 @@
 {
-  "title": "14-Calllog项目-05: Yarn设置内存限制",
+  "title": "14-Calllog项目-05: hive汇总查询",
   "cells": [
     {
       "type": "markdown",
-      "data": "> 11, yarn的内存设置"
+      "data": "> 12, 查询近3个月的通话数据\n"
     },
     {
       "type": "markdown",
-      "data": "## 11，yarn的内存限制\n\n* 修改[yarn-site.xml]\n\n```xml\n<!--默认限制是开启的，最多分配给容器8G的物理内存，虚拟内存是物理内存的2.1倍。-->\n<property>\n\t<name>yarn.nodemanager.resource.memory-mb</name>\n\t<value>8192</value>\n</property>\n\n<!--这里是关闭最大内存限制-->\n<property>\n\t<name>yarn.nodemanager.pmem-check-enabled</name>\n\t<value>false</value>\n</property>\n\n<property>\n\t<name>yarn.nodemanager.vmem-check-enabled</name>\n\t<value>false</value>\n</property>\n\n<property>\n\t<name>yarn.nodemanager.vmem-pmem-ratio</name>\n\t<value>2.1</value>\n</property>\n```"
+      "data": "* 查询字符串的截串\n\n* // mysql， 从1开始哈\n  > select substring(name,1,4) from test.stu;   \n* //hive\n  > select substring(caller, 1, 4) from imdb.calllogs_hive_hbase; \n"
+    },
+    {
+      "type": "markdown",
+      "data": "## 12, 查询\n\n* 01, 首先是通过截串来获取月份相关信息\n\n  > select * from imdb.calllogs_hive_hbase where caller = '15338595369' and substring(time, 1, 6) = '201805';\n\n  * 这个会转mr\n  > select count(*) , substring(time, 1, 6) from imdb.calllogs_hive_hbase where caller = '15338595369' group by substring(time, 1, 6);\n\n  * 下面这句不好使，是那个大于的问题\n  > select count(*) , substring(time, 1, 6) from imdb.calllogs_hive_hbase where caller = '15338595369' and substring(time, 1, 6) > 201805 group by substring(time, 1, 6);\n  \n  > select count(*) , substring(time, 1, 6) from imdb.calllogs_hive_hbase where caller = '15338595369' and substring(time, 1, 4) = '2018' group by substring(time, 1, 6);\n  \n  > select count(*) , substring(time, 1, 6) as t from imdb.calllogs_hive_hbase where caller='15732648446' and substring(time, 1, 4)='2017' group by substring(time, 1, 6)\n\n* 02, 查询所有用户各个月份的通话次数\n  * 只要是聚合都会转成MR哈\n  > select caller, substring(time, 1, 6), count(*) from imdb.calllogs_hive_hbase group by caller, substring(time, 1, 6);\n  "
     }
   ]
 }

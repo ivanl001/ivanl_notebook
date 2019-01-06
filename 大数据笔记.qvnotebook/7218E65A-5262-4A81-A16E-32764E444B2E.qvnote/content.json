@@ -1,0 +1,9 @@
+{
+  "title": "02-Linux基础-1002-centos命令行提示符显式完整路径",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "```shell\r\n让命令行提示符显式完整路径\r\n---------------------------\r\n\t1.编辑profile文件，添加环境变量PS1\r\n\t\t[/etc/profile]\r\n\t\texport PS1='[\\u@\\h `pwd`]\\$'\r\n\t\r\n\t2.source\t\r\n\t\t$>source /etc/profile\r\n```"
+    }
+  ]
+}
