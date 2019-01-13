@@ -1,0 +1,13 @@
+{
+  "title": "面试取经",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "需要后续学习:\nCDH的使用\nimpala\ncanal\nrabbitMq\n\njstack\n\njmap\n\nkudu\n\nflink\n\n\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": "分析mysql数据库的流程：\nmysql -> binlog -> canal -> rabbitMq -> SparkStream -> hdfs\n* 使用 Binlog 和 Canal 从 MySQL 抽取数据\nhttps://blog.csdn.net/zjerryj/article/details/77152226\n\nhdfs -> impala -> web\n\n分析log流程：\n\nlog -> flume -> kafka -> hive -> hdfs \n\n\n\n\n"
+    }
+  ]
+}

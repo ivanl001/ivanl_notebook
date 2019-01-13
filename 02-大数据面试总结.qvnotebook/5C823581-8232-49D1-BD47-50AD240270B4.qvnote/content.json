@@ -1,0 +1,9 @@
+{
+  "title": "java相关面试题",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## 1, 加载过程相关\n\n```java\npackage im.ivanl001.bigData.java_01.Java.IM007_考试题;\n\n/**\n * #author      : ivanl001\n * #creator     : 2018-10-20 16:49\n * #description :\n **/\npublic class Singleton {\n\n    //1，首先先给静态变量赋值，赋值空值，或数字赋值为0，所以第一步是num01 = 0, num02 = 0\n    //2, 然后开始从上往下走，首先， 经过创建单例到这个时候， num01 = 1, num02 = 1\n    //3，然后再往下走，num01因为没有赋值，所以还是1，num02赋值0，num02 = 0\n    //4, 所以结果就是：最后num01=1, num02=0;\n\n    //结果是num01是1， num02是0，分析在Singleton中，到这个类里面看\n    /*Singleton singleton = Singleton.getInstance();\n    System.out.println(singleton.num01);\n    System.out.println(singleton.num02);*/\n\n    private static Singleton singleton = new Singleton();\n\n    public static int num01;\n    public static int num02 = 0;\n\n    private Singleton(){\n        num01++;\n        num02++;\n    }\n\n    public static Singleton getInstance(){\n        return singleton;\n    }\n\n}\n\n```"
+    }
+  ]
+}

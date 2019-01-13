@@ -1,0 +1,13 @@
+{
+  "title": "传智播客大数据面试题讲解",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "## hdfs\n* 1，hdfs的数据存储：datanode负责。namenode主要存储两个方面的文件：一个是fsimage也就是镜像文件，里面是分块信息，块大小，文件名和文件结构等；一个是edit文件，主要存储文件的详细操作。\n  * 在namenode中是不存储文件的存储位置也就是所在的datanode的哈\n  \n* 2，hdfs的块默认保存3份\n\n* 3，与namenode在同一个节点启动的程序是JobTracker。还有一个TaskTracker是也resourceManager在同一个节点上启动的吧，后面再详细看看\n\n* 4，hdfs的默认块大小是128M，之前的是64M\n\n* 5，集群的主要瓶颈是IO，这也是为啥spark比hadoop快的原因，spark是RDD，存在内存中，hadoop需要把输出结果写到文件，然后再读，然后再写，然后再读，这个过程占据hadoop处理的60%以上\n\n* 6，SecondaryNamenode的作用：帮助namenode合并编辑日志，减少Namenode的启动时间？？？？？#TODO\n  * ![IMAGE](quiver-image-url/7FDE9B6327EB17CAC473A03BD7F33820.jpg =784x754)\n  * 1. The secondary asks the primary to roll its in-progress edits file, so new edits go to a new file. The primary also updates the seen_txid file in all its storage directories.\n  * 2. The secondary retrieves the latest fsimage and edits files from the primary (using HTTP GET).\n  * 3. The secondary loads fsimage into memory, applies each transaction from edits, then creates a new merged fsimage file.\n  * 4. The secondary sends the new fsimage back to the primary (using HTTP PUT), and the primary saves it as a temporary .ckpt file.\n  * 5. The primary renames the temporary fsimage file to make it available.\n  \n  * 滚动时间是一个小时，在hdfs-default.xml中有如下配置信息\n    ```\n    <property>\n      <name>dfs.namenode.checkpoint.period</name>\n      <value>3600</value>\n      <description>The number of seconds between two periodic checkpoints.\n      </description>\n    </property>\n    ```\n\n\n\n\n* 7，zk作为hadoop的ha部署。zk的功能：增删改查节点和监听。任务调度：任务启动的时候设置一个序列号节点，这样就可以根据序列节点的大小来进行调度，小的必然是先进来的任务，优先执行。大的后面进行\n  * 我们在java api中使用的是zookeeper依赖，据说zookeeper-client依赖能注册一次监听就可以实现连续监听。后续试试。#TODO\n  \n* 8，hdfs的写入过程：\n  * client向namenode发起文件写入的请求。namenode根据文件的大小和文件块配置文件的情况，写入edit中元数据信息，之后返回给client它所管理的Datanode信息。然后client把文件分为多块，按照流方式依次写入到需要的datanode中去。"
+    },
+    {
+      "type": "markdown",
+      "data": "## mapreduce\n\n* 1，mapreduce的原理\n"
+    }
+  ]
+}
