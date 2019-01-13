@@ -1,0 +1,13 @@
+{
+  "title": "Sprint-boot-03: Spring Boot配置文件放在jar外部",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "https://www.cnblogs.com/xiaoqi/p/6955288.html"
+    },
+    {
+      "type": "markdown",
+      "data": "> pring Boot程序默认从application.properties或者application.yaml读取配置，如何将配置信息外置，方便配置呢？\n\n### 1, 通过命令行指定\n\nSpringApplication会默认将命令行选项参数转换为配置信息\n例如，启动时命令参数指定：\n\n> java -jar myproject.jar --server.port = 9000\n\n从命令行指定配置项的优先级最高，不过你可以通过setAddCommandLineProperties来禁用\n\n> SpringApplication.setAddCommandLineProperties(false)\n\n### 2, 外置配置文件\nSpring程序会按优先级从下面这些路径来加载application.properties配置文件\n\n* 当前目录下的/config目录\n* 当前目录\n* classpath里的/config目录\n* classpath 跟目录\n\n  > 因此，要外置配置文件就很简单了，在jar所在目录新建config文件夹，然后放入配置文件，或者直接放在配置文件在jar目录\n  \n### 3, 自定义配置文件\n\n如果你不想使用application.properties作为配置文件，怎么办？完全没问题\n\n> java -jar myproject.jar --spring.config.location=classpath:/default.properties,classpath:/override.properties\n\n或者\n\n> java -jar -Dspring.config.location=D:\\config\\config.properties springbootrestdemo-0.0.1-SNAPSHOT.jar \n\n\n当然，还能在代码里指定\n\n```java\n@SpringBootApplication\n@PropertySource(value={\"file:config.properties\"})\npublic class SpringbootrestdemoApplication {\n\n    public static void main(String[] args) {\n        SpringApplication.run(SpringbootrestdemoApplication.class, args);\n    }\n}\n```\n\n### 4, 按Profile不同环境读取不同配置\n不同环境的配置设置一个配置文件，例如：\n\n* dev环境下的配置配置在application-dev.properties中；\n* rod环境下的配置配置在application-prod.properties中。\n\n在application.properties中指定使用哪一个文件\n\n> spring.profiles.active = dev\n\n当然，你也可以在运行的时候手动指定：\n\n> java -jar myproject.jar --spring.profiles.active = prod\n\n\n"
+    }
+  ]
+}

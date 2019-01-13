@@ -1,0 +1,9 @@
+{
+  "title": "Sprint-boot-05: 多环境搭建",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "非常easy\n\n* 01, 生成相应的文件,格式application-{$profile}.properties\n  > application-test.properties\n  > application-dev.properties\n  > application-prod.properties\n\n* 02, 需要使用哪个环境，在application.properties配置如下属性,\n*指定当前环境,spring.profiles.active={$properties}*\n  > spring.profiles.active=test"
+    }
+  ]
+}

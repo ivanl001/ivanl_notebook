@@ -1,0 +1,17 @@
+{
+  "title": "零碎笔记01",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "### 大数据的核心：分布式计算\n### 分布式计算的核心：socket编程，重点NIO"
+    },
+    {
+      "type": "markdown",
+      "data": "### 网络负载：网络上的流量压力"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

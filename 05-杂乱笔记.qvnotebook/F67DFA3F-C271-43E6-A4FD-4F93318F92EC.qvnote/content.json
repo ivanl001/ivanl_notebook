@@ -1,0 +1,9 @@
+{
+  "title": "Apache服务器",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "mac上配置文件地址:\n/etc/apache2/httpd.conf\n\nsudo apachectl start\n\nsudo apachectl stop"
+    }
+  ]
+}

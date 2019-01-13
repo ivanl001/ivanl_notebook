@@ -1,0 +1,9 @@
+{
+  "title": "mac",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "查看端口占用情况\n> lsof -i :9999\n\n> lsof -i udp:9999\n\n> lsof -i tcp:9999\n"
+    }
+  ]
+}

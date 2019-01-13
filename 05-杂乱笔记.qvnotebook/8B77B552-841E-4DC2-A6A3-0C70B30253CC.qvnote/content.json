@@ -1,0 +1,9 @@
+{
+  "title": "maven下载速度慢",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "* 在maven的配置文件中的mirrors属性中添加如下：\n\n```xml\n<!-- 阿里云仓库 -->\n<mirror>\n    <id>alimaven</id>\n    <mirrorOf>central</mirrorOf>\n    <name>aliyun maven</name>\n    <url>http://maven.aliyun.com/nexus/content/repositories/central/</url>\n</mirror>\n```"
+    }
+  ]
+}
