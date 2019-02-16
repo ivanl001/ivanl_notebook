@@ -1,0 +1,9 @@
+{
+  "title": "项目已被osx使用 不能打开",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "“项目已被osx使用 不能打开”，一般是由于硬盘与系统盘不兼容造成的，解决办法：\n\n* 1，打开终端\n\n* 2，输入xattr -d com.apple.FinderInfo 你的文件路径全名（可以直接空格后拖入到终端）\n  > xattr -d com.apple.FinderInfo filePath\n\n* 3，回车"
+    }
+  ]
+}

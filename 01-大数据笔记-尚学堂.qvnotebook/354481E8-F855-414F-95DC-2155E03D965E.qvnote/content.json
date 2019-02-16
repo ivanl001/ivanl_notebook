@@ -1,0 +1,25 @@
+{
+  "title": "010401-linux-bash",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "### 1，bash简介\n\nshell01.sh内容： echo $$\n\n*上面的$$是bash执行的进程号*\n\nsource空格+文件执行方式：\n  * Execute commands from a file in the current shell\n  * source shell01.sh\n  \n.前面加.空格+文件执行方式：\n  * Execute commands from a file in the current shell.\n  * . shell01.sh\n  \nbash空格+文件执行方式：\n  * 这个相当于先开一个子bash，执行进程结束后再关闭那个子shell\n  * bash shell01.sh\n  \n./shell01.sh方式执行脚本：\n  * 这个相当于是新开一个bash，然后执行的哈\n  * 一般会在shell脚本内部写上#! /bin/bash, 也可以不写\n  \n\npstree：\n  * 可以查看bash的树形结构\n  \n  \n```shell\n$# 是传给脚本的参数个数\n$0 是脚本本身的名字\n$1 是传递给该shell脚本的第一个参数\n$2 是传递给该shell脚本的第二个参数\n$@ 是传给脚本的所有参数的列表\n$* 是以一个单字符串显示所有向脚本传递的参数，与位置变量不同，参数可超过9个\n$$ 是脚本运行的当前进程ID号\n$? 是显示最后命令的退出状态，0表示没有错误，其他表示有错误\n```"
+    },
+    {
+      "type": "markdown",
+      "data": "### 2，重定向：一切皆文件\n\n> /proc/$$/fd\n*proc是process的意思，$$是当前线程，fd的话不知道，反正这就是当前的bash的位置，没开一个终端连接，就相当于是一个客户端，fd中文件指向就会发生变化*\n\n* 上面的目录ll之后可以看到如下:\n* ![IMAGE](quiver-image-url/E2D845B6C91D2FEE4511D3A5A57FCAD3.jpg =414x181)\n* 其中1是结果输出，相当于重定向到/dev/pts/0这个地方\n* 2是错误输出\n\n* 01，把结果重定向输出，比如ls默认是输出到屏幕上的。如果想把结果输出到其他文件中，如下：\n  > ls > zhang.txt\n  > ls 1> zhang.txt  # 和上面的那个等同，因为不写就是默认结果重定向\n\n* 02，把错误信息重定向输出。那么就需要如下:\n  > ls /ddddd 2> zhang.txt\n\n* 03, 混合重定向输出到不同文件\n  > ls / /dddd 1> result.txt 2> error.txt\n\n* 04，混合重定向输出到相同的文件中去：\n  > ls / /dddd 1> zhang.txt 2> zhang.txt # 注意：如果是覆盖写入，那么只会写入正确的结果，因为如果执行的话总是先输出错误信息，最后执行正确结果，覆盖的话，所以正确结果总是覆盖掉了错误信息\n\n  > ls / /dddd 1>> zhang.txt 2>> zhang.txt\n  \n  > ls / /dddd 1>> zhang.txt 2>&1 #先把正确结果输出，然后再把错误的重定向到1，然后再输出即可\n  \n  > ls / /dddd >& zhang.txt  # 上面那行的特殊写法\n\n* 05，全重定向，不太明白就搁这里\n* ![IMAGE](quiver-image-url/2203DBE2F2F273D7F6EA6F90F3F0C269.jpg =410x268)\n\n"
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    },
+    {
+      "type": "markdown",
+      "data": ""
+    }
+  ]
+}

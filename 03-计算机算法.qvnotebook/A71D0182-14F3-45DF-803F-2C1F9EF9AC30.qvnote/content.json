@@ -1,0 +1,9 @@
+{
+  "title": "java书籍中算法简单了解",
+  "cells": [
+    {
+      "type": "markdown",
+      "data": "##### 1， 选择排序法：\n* 即有一面墙，墙左边是排好序的，右边是未排序的。通过两次循环：外层循环进行迭代，内层循环从未排序的数字找出最大的数字，放在墙的左边。这样两次循环完成之后就可以把给定的数字序列从大到小进行正确排序\n\n##### 2，冒泡排序法：\n* 有一面墙，墙左边是排好序的，墙右边是未排序的。通过两次循环：外层循环进行迭代，内层循环把墙右边未排序的数字的最右边那个数与该数字前面一个数字进行比较，如果比前面数字大，则交换位置，冒泡到前一个数字位置。经过两次循环，就可以把给定的数字序列从大到小进行正确的排序\n\n##### 3，插入排序法：\n* 有一面墙，墙左边是排好序的，右边是未排序的。通过两次循环，外层循环进行迭代，内层循环从墙右边找到最左边的那个数字，然后插入到墙左边合适的位置。经过两次循环之后就可以把给定的数字序列正确排序。\n\n\n参考资料：\n![](http://upload-images.jianshu.io/upload_images/3930130-db59943db262819a.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)\n![](http://upload-images.jianshu.io/upload_images/3930130-fced19415eae5964.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)\n![](http://upload-images.jianshu.io/upload_images/3930130-1f88cd9bed0f80bc.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)\n![](http://upload-images.jianshu.io/upload_images/3930130-a596383f087976e2.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)\n![](http://upload-images.jianshu.io/upload_images/3930130-a5862b792ee75883.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)\n"
+    }
+  ]
+}
